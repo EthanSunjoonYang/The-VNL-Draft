@@ -1,0 +1,1245 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>VNL Draft — Can Your All-Time Roster Go Undefeated?</title>
+<style>
+  :root {
+    --bg: #0f1117;
+    --bg2: #181c27;
+    --bg3: #1e2336;
+    --border: #2a3050;
+    --text: #ffffff;
+    --text2: #8891b0;
+    --accent: #f97316;
+    --accent2: #fb923c;
+    --nation-color: #f59e0b;
+    --year-color: #a78bfa;
+    --s-color: #3b82f6;
+    --oh-color: #f97316;
+    --mb-color: #10b981;
+    --opp-color: #ef4444;
+    --l-color: #8b5cf6;
+    --r: 14px;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: var(--bg); color: var(--text); font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; min-height: 100vh; overflow-x: hidden; }
+
+  .screen { display: none; min-height: 100vh; flex-direction: column; }
+  .screen.active { display: flex; }
+
+  .top-bar {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 14px 16px; border-bottom: 1px solid var(--border);
+    position: sticky; top: 0; background: var(--bg); z-index: 10;
+  }
+  .top-bar .round-label { font-size: 15px; font-weight: 700; }
+  .icon-btn {
+    background: var(--bg3); border: 1px solid var(--border);
+    border-radius: 8px; padding: 8px 12px; cursor: pointer; color: var(--text2);
+    display: flex; align-items: center; gap: 6px;
+    font-size: 13px; font-weight: 600; transition: all .15s;
+  }
+  .icon-btn:hover { border-color: var(--text2); color: var(--text); }
+
+  #toast {
+    position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%);
+    background: #ef4444; color: white; padding: 10px 20px;
+    border-radius: 20px; font-size: 14px; font-weight: 700;
+    z-index: 999; opacity: 0; transition: opacity .2s; pointer-events: none;
+    white-space: nowrap;
+  }
+  #toast.show { opacity: 1; }
+
+  /* HOME */
+  #screen-home {
+    align-items: center; justify-content: center;
+    padding: 40px 20px 60px; text-align: center; gap: 10px;
+  }
+  .home-logo { font-size: 64px; margin-bottom: 4px; }
+  #screen-home h1 { font-size: 34px; font-weight: 900; line-height: 1.1; }
+  #screen-home h2 { font-size: 24px; font-weight: 800; margin-top: 6px; }
+  #screen-home p  { color: var(--text2); font-size: 14px; margin-top: 4px; }
+  .mode-grid {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 12px;
+    width: 100%; max-width: 480px; margin-top: 20px;
+  }
+  .mode-card {
+    background: var(--bg2); border: 1px solid var(--border);
+    border-radius: var(--r); padding: 20px 16px; text-align: center;
+    transition: border-color .2s;
+  }
+  .mode-card:hover { border-color: var(--accent); }
+  .mode-card .mode-icon { font-size: 28px; margin-bottom: 8px; }
+  .mode-card h3 { font-size: 18px; font-weight: 800; margin-bottom: 6px; }
+  .mode-card p  { font-size: 12px; color: var(--text2); line-height: 1.4; }
+  .mode-card .play-btn {
+    margin-top: 14px; width: 100%; background: var(--accent);
+    color: white; border: none; border-radius: 8px;
+    padding: 10px; font-weight: 700; font-size: 14px; cursor: pointer;
+    transition: background .15s;
+  }
+  .mode-card .play-btn:hover { background: var(--accent2); }
+
+  .home-sub { color: var(--text2); font-size: 12px; margin-top: 16px; }
+
+  /* SPIN */
+  #screen-spin { padding-bottom: 120px; }
+  .spin-area {
+    flex: 1; display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    padding: 40px 20px; gap: 28px;
+  }
+  .spin-cards { display: flex; gap: 16px; }
+  .spin-card {
+    background: var(--bg2); border-radius: var(--r);
+    padding: 22px 28px; min-width: 140px; text-align: center;
+    border: 2px solid var(--border); user-select: none;
+  }
+  .spin-card.nation-card { border-color: var(--nation-color); }
+  .spin-card.year-card   { border-color: var(--year-color); }
+  .card-label { font-size: 11px; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; margin-bottom: 8px; }
+  .nation-card .card-label { color: var(--nation-color); }
+  .year-card   .card-label { color: var(--year-color); }
+  .card-value { font-size: 34px; font-weight: 900; letter-spacing: -1px; }
+  .card-sub   { color: var(--text2); font-size: 12px; margin-top: 6px; }
+  @keyframes spinFlicker { 0%,100%{opacity:1}50%{opacity:0.2} }
+  .spinning .card-value { animation: spinFlicker 0.09s linear infinite; }
+
+  .spin-btn {
+    background: var(--accent); color: white; border: none;
+    border-radius: 12px; padding: 15px 44px;
+    font-size: 18px; font-weight: 900; letter-spacing: 1px;
+    cursor: pointer; text-transform: uppercase;
+    transition: background .15s, transform .1s;
+  }
+  .spin-btn:hover { background: var(--accent2); }
+  .spin-btn:active { transform: scale(0.96); }
+  .spin-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+  .reroll-chips { display: flex; gap: 8px; }
+  .reroll-chip {
+    background: var(--bg3); border: 1px solid var(--border);
+    border-radius: 20px; padding: 7px 14px; font-size: 12px;
+    color: var(--text2); cursor: pointer; transition: all .15s;
+  }
+  .reroll-chip:hover:not(.used) { border-color: var(--accent); color: var(--text); }
+  .reroll-chip.used { opacity: 0.35; cursor: not-allowed; }
+
+  /* pill reroll animation */
+  .pill-spinning { animation: spinFlicker 0.09s linear infinite; }
+  @keyframes newBadge { 0%{opacity:0;transform:translateY(-5px)} 15%{opacity:1;transform:translateY(0)} 75%{opacity:1} 100%{opacity:0} }
+  .new-badge {
+    display: inline-block; background: #22c55e; color: #fff;
+    font-size: 9px; font-weight: 800; border-radius: 4px;
+    padding: 2px 6px; margin-left: 5px; vertical-align: middle;
+    animation: newBadge 1.8s ease forwards;
+  }
+
+  /* ROSTER BAR */
+  .roster-bar {
+    position: fixed; bottom: 0; left: 0; right: 0;
+    background: var(--bg); border-top: 1px solid var(--border);
+    padding: 10px 8px 20px; z-index: 15;
+  }
+  .roster-slots { display: flex; justify-content: center; gap: 6px; }
+  .roster-slot  { display: flex; flex-direction: column; align-items: center; gap: 3px; }
+  .slot-circle {
+    width: 38px; height: 38px; border-radius: 50%;
+    border: 2px dashed var(--border); display: flex;
+    align-items: center; justify-content: center;
+    font-size: 8px; font-weight: 700; color: var(--text2);
+    background: var(--bg2); transition: all .3s;
+  }
+  .slot-circle.filled { border-style: solid; border-color: transparent; }
+  .slot-circle.filled.pos-S   { background: var(--s-color);   color:#fff; }
+  .slot-circle.filled.pos-OH  { background: var(--oh-color);  color:#fff; }
+  .slot-circle.filled.pos-MB  { background: var(--mb-color);  color:#fff; }
+  .slot-circle.filled.pos-OPP { background: var(--opp-color); color:#fff; }
+  .slot-circle.filled.pos-L   { background: var(--l-color);   color:#fff; }
+  .slot-initials { font-size: 7px; font-weight: 800; text-align: center; line-height: 1.1; }
+  .slot-label { font-size: 9px; color: var(--text2); font-weight: 600; }
+
+  /* DRAFT */
+  #screen-draft { padding-bottom: 130px; }
+  .draft-header {
+    display: flex; align-items: center; gap: 8px; padding: 10px 16px;
+    border-bottom: 1px solid var(--border); flex-wrap: wrap;
+  }
+  .tag-pill { border-radius: 20px; padding: 5px 12px; font-size: 13px; font-weight: 800; }
+  .tag-nation { background: var(--nation-color); color: #000; }
+  .tag-year   { background: var(--year-color);   color: #000; }
+  .reroll-btn {
+    background: transparent; border: 1px solid var(--border);
+    border-radius: 20px; padding: 5px 12px; color: var(--text2);
+    font-size: 12px; cursor: pointer; transition: all .15s; white-space: nowrap;
+  }
+  .reroll-btn:hover { border-color: var(--accent); color: var(--text); }
+
+  .filter-bar {
+    display: flex; align-items: center; gap: 8px; padding: 10px 16px;
+    border-bottom: 1px solid var(--border);
+  }
+  .pos-filters { display: flex; gap: 5px; flex-shrink: 0; }
+  .pos-filter {
+    padding: 5px 9px; border-radius: 6px; font-size: 11px; font-weight: 700;
+    cursor: pointer; border: 1px solid var(--border);
+    background: var(--bg2); color: var(--text2); transition: all .15s;
+  }
+  .pos-filter.active { background: var(--accent); color: white; border-color: var(--accent); }
+  .search-box {
+    flex: 1; background: var(--bg3); border: 1px solid var(--border);
+    border-radius: 8px; padding: 7px 12px; color: var(--text);
+    font-size: 13px; outline: none; min-width: 0;
+  }
+  .search-box::placeholder { color: var(--text2); }
+  .sort-select {
+    background: var(--bg3); border: 1px solid var(--border);
+    border-radius: 8px; padding: 7px 8px; color: var(--text);
+    font-size: 11px; outline: none; cursor: pointer; flex-shrink: 0;
+  }
+
+  .player-count { padding: 8px 16px; font-size: 13px; color: var(--text2); }
+  .player-list  { padding: 0 12px; display: flex; flex-direction: column; gap: 6px; }
+
+  .player-card {
+    background: var(--bg2); border: 1px solid var(--border);
+    border-radius: var(--r); padding: 12px 14px;
+    cursor: pointer; transition: border-color .15s, background .15s;
+    display: flex; align-items: center; gap: 12px;
+  }
+  .player-card:hover { border-color: var(--accent); background: var(--bg3); }
+  .player-card.drafted  { opacity: 0.3; pointer-events: none; }
+  .player-card.pos-full { opacity: 0.4; cursor: not-allowed; }
+  .player-card.pos-full:hover { border-color: var(--border); background: var(--bg2); }
+
+  .player-info { flex: 1; min-width: 0; }
+  .player-name { font-size: 15px; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .player-meta { font-size: 11px; color: var(--text2); margin-top: 2px; display: flex; align-items: center; gap: 5px; }
+  .pos-badge { font-size: 9px; font-weight: 800; padding: 2px 5px; border-radius: 3px; flex-shrink: 0; }
+  .pos-badge.S   { background: var(--s-color);   color:#fff; }
+  .pos-badge.OH  { background: var(--oh-color);  color:#fff; }
+  .pos-badge.MB  { background: var(--mb-color);  color:#fff; }
+  .pos-badge.OPP { background: var(--opp-color); color:#fff; }
+  .pos-badge.L   { background: var(--l-color);   color:#fff; }
+
+  .player-stats { display: flex; gap: 12px; align-items: center; flex-shrink: 0; }
+  .stat-block   { text-align: center; min-width: 28px; }
+  .stat-val { font-size: 14px; font-weight: 700; }
+  .stat-lbl { font-size: 9px; color: var(--text2); text-transform: uppercase; }
+
+  /* MODAL */
+  .modal-overlay {
+    position: fixed; inset: 0; background: rgba(0,0,0,.75);
+    z-index: 50; display: none; align-items: flex-end;
+  }
+  .modal-overlay.open { display: flex; }
+  .modal-sheet {
+    background: var(--bg2); border-radius: 20px 20px 0 0;
+    width: 100%; padding: 24px 20px 44px;
+    border-top: 1px solid var(--border);
+    animation: slideUp .22s ease;
+  }
+  @keyframes slideUp { from{transform:translateY(100%)} to{transform:translateY(0)} }
+  .modal-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 4px; }
+  .modal-title  { font-size: 20px; font-weight: 800; flex: 1; }
+  .modal-close  { background: none; border: none; color: var(--text2); font-size: 26px; cursor: pointer; line-height: 1; }
+  .modal-sub    { font-size: 13px; color: var(--text2); margin-bottom: 20px; }
+  .modal-stat-row {
+    display: flex; gap: 10px; margin-bottom: 22px;
+    background: var(--bg3); border-radius: 10px; padding: 14px;
+  }
+  .modal-stat     { text-align: center; flex: 1; }
+  .modal-stat-val { font-size: 22px; font-weight: 800; color: var(--accent); }
+  .modal-stat-lbl { font-size: 10px; color: var(--text2); margin-top: 2px; }
+  .draft-confirm-btn {
+    width: 100%; border: none; border-radius: 12px; padding: 16px;
+    font-size: 17px; font-weight: 900; cursor: pointer; color: white;
+    transition: filter .15s;
+  }
+  .draft-confirm-btn:hover { filter: brightness(1.1); }
+  .draft-confirm-btn.S   { background: var(--s-color); }
+  .draft-confirm-btn.OH  { background: var(--oh-color); }
+  .draft-confirm-btn.MB  { background: var(--mb-color); }
+  .draft-confirm-btn.OPP { background: var(--opp-color); }
+  .draft-confirm-btn.L   { background: var(--l-color); }
+
+  /* RESULT */
+  #screen-result { padding-bottom: 40px; }
+  .result-hero {
+    text-align: center; padding: 30px 20px 24px;
+    background: linear-gradient(180deg, var(--bg3) 0%, var(--bg) 100%);
+  }
+  .result-trophy { font-size: 56px; margin-bottom: 8px; }
+  .result-hero h2  { font-size: 20px; font-weight: 900; }
+  .rating-big      { font-size: 68px; font-weight: 900; color: var(--accent); line-height: 1; margin: 6px 0; }
+  .rating-label    { color: var(--text2); font-size: 13px; }
+  .verdict {
+    font-size: 15px; font-weight: 800; margin-top: 14px;
+    padding: 8px 20px; border-radius: 20px; display: inline-block;
+  }
+  .verdict.elite   { background:rgba(249,115,22,.2); color:var(--accent); }
+  .verdict.great   { background:rgba(16,185,129,.2); color:#10b981; }
+  .verdict.good    { background:rgba(59,130,246,.2); color:#3b82f6; }
+  .verdict.average { background:rgba(139,92,246,.2); color:#8b5cf6; }
+  .verdict.weak    { background:rgba(239,68,68,.2);  color:#ef4444; }
+
+  .result-roster { padding: 16px; display: flex; flex-direction: column; gap: 10px; }
+  .result-player {
+    background: var(--bg2); border: 1px solid var(--border);
+    border-radius: var(--r); padding: 14px;
+    display: flex; align-items: center; gap: 14px;
+  }
+  .result-pos-badge {
+    width: 44px; height: 44px; border-radius: 10px; flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 13px; font-weight: 900; color: white;
+  }
+  .result-pos-badge.S   { background: var(--s-color); }
+  .result-pos-badge.OH  { background: var(--oh-color); }
+  .result-pos-badge.MB  { background: var(--mb-color); }
+  .result-pos-badge.OPP { background: var(--opp-color); }
+  .result-pos-badge.L   { background: var(--l-color); }
+  .result-player-info   { flex: 1; }
+  .result-player-name   { font-size: 16px; font-weight: 800; }
+  .result-player-meta   { font-size: 11px; color: var(--text2); margin-top: 2px; }
+  .result-player-rating { font-size: 24px; font-weight: 900; color: var(--accent); }
+
+  .play-again-btn {
+    display: block; margin: 20px 16px 0; background: var(--accent);
+    color: white; border: none; border-radius: 12px; padding: 16px;
+    font-size: 16px; font-weight: 800; cursor: pointer; width: calc(100% - 32px);
+  }
+  .share-btn {
+    display: block; margin: 10px 16px 0;
+    background: var(--bg3); color: var(--text); border: 1px solid var(--border);
+    border-radius: 12px; padding: 14px;
+    font-size: 15px; font-weight: 700; cursor: pointer; width: calc(100% - 32px);
+  }
+  .empty-msg { padding: 40px 20px; text-align: center; color: var(--text2); line-height: 1.6; }
+</style>
+</head>
+<body>
+
+<div id="toast"></div>
+
+<!-- HOME -->
+<div id="screen-home" class="screen active">
+  <div class="home-logo">🏐</div>
+  <h1>Can you go<br>undefeated?</h1>
+  <h2>Choose Your Mode</h2>
+  <p>Build your all-time VNL roster through the draft</p>
+  <div class="mode-grid">
+    <div class="mode-card">
+      <div class="mode-icon">💯</div>
+      <h3>Classic</h3>
+      <p>Draft with full player stats visible — make informed picks.</p>
+      <button class="play-btn" onclick="startGame('classic')">Play Classic</button>
+    </div>
+    <div class="mode-card">
+      <div class="mode-icon">🧠</div>
+      <h3>SpikeIQ</h3>
+      <p>Stats hidden — draft by memory and test your VNL knowledge.</p>
+      <button class="play-btn" onclick="startGame('spikeiq')">Play SpikeIQ</button>
+    </div>
+
+  </div>
+  <div class="home-sub">Volleyball Nations League · All-Time Draft · 7 Rounds</div>
+</div>
+
+<!-- SPIN -->
+<div id="screen-spin" class="screen">
+  <div class="top-bar">
+    <div class="round-label" id="spin-round-label">Round 1/7</div>
+    <button class="icon-btn" onclick="goHome()">✕ Exit</button>
+  </div>
+  <div class="spin-area">
+    <div class="spin-cards">
+      <div class="spin-card nation-card" id="nation-card">
+        <div class="card-label">Nation</div>
+        <div class="card-value" id="nation-display">BRA</div>
+        <div class="card-sub">Country</div>
+      </div>
+      <div class="spin-card year-card" id="year-card">
+        <div class="card-label">Year</div>
+        <div class="card-value" id="year-display">2018</div>
+        <div class="card-sub">VNL Edition</div>
+      </div>
+    </div>
+    <button class="spin-btn" id="spin-btn" onclick="doSpin()">SPIN</button>
+    <div class="reroll-chips" id="reroll-chips" style="visibility:hidden;">
+      <button class="reroll-chip" id="reroll-chip-nation" onclick="rerollNation()">↺ Nation</button>
+      <button class="reroll-chip" id="reroll-chip-year" onclick="rerollYear()">↺ Year</button>
+    </div>
+  </div>
+  <div class="roster-bar">
+    <div class="roster-slots" id="spin-roster-slots"></div>
+  </div>
+</div>
+
+<!-- DRAFT -->
+<div id="screen-draft" class="screen">
+  <div class="top-bar">
+    <div class="round-label" id="draft-round-label">Round 1/7</div>
+    <button class="icon-btn" onclick="goHome()">✕ Exit</button>
+  </div>
+  <div class="draft-header">
+    <span class="tag-pill tag-nation" id="draft-nation-tag">BRA</span>
+    <span class="tag-pill tag-year"   id="draft-year-tag">2018</span>
+    <button class="reroll-btn" id="reroll-nation-btn" onclick="rerollFromDraft('nation')">↺ Nation</button>
+    <button class="reroll-btn" id="reroll-year-btn" onclick="rerollFromDraft('year')">↺ Year</button>
+  </div>
+  <div class="filter-bar">
+    <div class="pos-filters">
+      <button class="pos-filter active" onclick="filterPos('All',this)">All</button>
+      <button class="pos-filter" onclick="filterPos('S',this)">S</button>
+      <button class="pos-filter" onclick="filterPos('OH',this)">OH</button>
+      <button class="pos-filter" onclick="filterPos('MB',this)">MB</button>
+      <button class="pos-filter" onclick="filterPos('OPP',this)">OPP</button>
+      <button class="pos-filter" onclick="filterPos('L',this)">L</button>
+    </div>
+    <input type="text" class="search-box" id="search-box" placeholder="Search..." oninput="renderPlayers()">
+    <select class="sort-select" id="sort-select" onchange="renderPlayers()">
+      <option value="rating">OVR</option>
+    </select>
+  </div>
+  <div class="player-count" id="player-count"></div>
+  <div class="player-list"  id="player-list"></div>
+  <div class="roster-bar">
+    <div class="roster-slots" id="draft-roster-slots"></div>
+  </div>
+</div>
+
+<!-- RESULT -->
+<div id="screen-result" class="screen">
+  <div class="top-bar">
+    <div style="font-weight:800;font-size:16px;">Your VNL All-Stars</div>
+    <div></div>
+  </div>
+  <div class="result-hero">
+    <div class="result-trophy" id="result-trophy">🏆</div>
+    <h2>All-Time VNL Roster</h2>
+    <div class="rating-big" id="result-rating">--</div>
+    <div class="rating-label">Overall Rating</div>
+    <div class="verdict" id="result-verdict"></div>
+  </div>
+  <div class="result-roster" id="result-roster"></div>
+  <button class="share-btn"      onclick="shareResult()">Share Roster</button>
+  <button class="play-again-btn" onclick="goHome()">Play Again</button>
+</div>
+
+<!-- MODAL -->
+<div class="modal-overlay" id="pos-modal">
+  <div class="modal-sheet">
+    <div class="modal-header">
+      <div class="modal-title" id="modal-title">Draft Player</div>
+      <button class="modal-close" onclick="closeModal()">×</button>
+    </div>
+    <div class="modal-sub"      id="modal-sub"></div>
+    <div class="modal-stat-row" id="modal-stats"></div>
+    <button class="draft-confirm-btn" id="modal-confirm-btn" onclick="confirmDraft()">Draft</button>
+  </div>
+</div>
+
+<script>
+/* ═══════════════════════════════════════════════════════
+   STAT DEFINITIONS — position-specific
+   S   : setEff(%), aces(/set), digs(/set), runEff(%)
+   OH  : kills(%), pts(/set), digs(/set), aces(/set)
+   MB  : kills(%), blocks(/set), pts(/set), eff(% net)
+   OPP : kills(%), pts(/set), blocks(/set), aces(/set)
+   L   : digs(/set), recEff(%), perfect(%)
+   ═══════════════════════════════════════════════════════ */
+const POS_STAT_DEFS = {
+  S:   [{k:'setEff',l:'SET%'},{k:'aces',l:'ACE'},{k:'digs',l:'DIG'},{k:'runEff',l:'RUN%'}],
+  OH:  [{k:'kills', l:'K%'  },{k:'pts', l:'PTS'},{k:'digs',l:'DIG'},{k:'aces',  l:'ACE' }],
+  MB:  [{k:'kills', l:'K%'  },{k:'blocks',l:'BLK'},{k:'pts',l:'PTS'},{k:'eff',  l:'EFF%'}],
+  OPP: [{k:'kills', l:'K%'  },{k:'pts', l:'PTS'},{k:'blocks',l:'BLK'},{k:'aces',l:'ACE' }],
+  L:   [{k:'digs',  l:'DIG' },{k:'recEff',l:'REC%'},{k:'perfect',l:'PRF%'}],
+};
+const POS_SORT_OPTS = {
+  All: [{v:'rating',l:'OVR'}],
+  S:   [{v:'rating',l:'OVR'},{v:'setEff',l:'SET%'},{v:'aces',l:'ACE'}],
+  OH:  [{v:'rating',l:'OVR'},{v:'kills', l:'K%'  },{v:'pts', l:'PTS'},{v:'digs',l:'DIG'}],
+  MB:  [{v:'rating',l:'OVR'},{v:'kills', l:'K%'  },{v:'blocks',l:'BLK'},{v:'eff',l:'EFF%'}],
+  OPP: [{v:'rating',l:'OVR'},{v:'kills', l:'K%'  },{v:'pts', l:'PTS'},{v:'aces',l:'ACE'}],
+  L:   [{v:'rating',l:'OVR'},{v:'digs',  l:'DIG' },{v:'recEff',l:'REC%'}],
+};
+
+/* ═══════════════════════════════════════════════════════
+   PLAYER DATABASE
+   ═══════════════════════════════════════════════════════ */
+const PLAYERS = [
+  // ── BRAZIL ──
+  {name:"Bruno Rezende",         nation:"BRA",pos:"S",  years:[2018,2019,2021,2022,2023,2024,2025,2026], stats:{setEff:92,aces:0.3,digs:1.6,runEff:91}, rating:97},
+  {name:"Fernando Kreling",      nation:"BRA",pos:"S",  years:[2022,2023,2024,2025,2026],                 stats:{setEff:87,aces:0.4,digs:1.2,runEff:86}, rating:86},
+  {name:"Leal",                  nation:"BRA",pos:"OH", years:[2021,2022,2023,2024,2025,2026],             stats:{kills:52,pts:18.4,digs:2.5,aces:0.7},   rating:95},
+  {name:"Ricardo Lucarelli",     nation:"BRA",pos:"OH", years:[2018,2019,2021,2022],             stats:{kills:48,pts:15.2,digs:2.8,aces:0.4},   rating:91},
+  {name:"Douglas Souza",         nation:"BRA",pos:"OH", years:[2018,2019,2021,2022,2023,2024,2025,2026], stats:{kills:45,pts:13.7,digs:3.1,aces:0.5},   rating:88},
+  {name:"Walace",                nation:"BRA",pos:"OH", years:[2018,2019,2021],                  stats:{kills:46,pts:14.1,digs:2.4,aces:0.5},   rating:87},
+  {name:"Alan Souza",            nation:"BRA",pos:"OH", years:[2018,2019],                       stats:{kills:44,pts:12.3,digs:2.9,aces:0.3},   rating:84},
+  {name:"Mauricio Souza",        nation:"BRA",pos:"MB", years:[2018,2019,2021,2022],             stats:{kills:58,blocks:1.3,pts:7.4,eff:53},    rating:87},
+  {name:"Lucas Saatkamp",        nation:"BRA",pos:"MB", years:[2018,2019,2021,2022,2023,2024,2025,2026], stats:{kills:60,blocks:1.4,pts:8.1,eff:55},    rating:88},
+  {name:"Rodriguinho",           nation:"BRA",pos:"OPP",years:[2018,2019,2021],                  stats:{kills:49,pts:16.0,blocks:0.9,aces:0.5}, rating:88},
+  {name:"Isac Santos",           nation:"BRA",pos:"OPP",years:[2022,2023,2024,2025,2026],                  stats:{kills:50,pts:17.1,blocks:0.8,aces:0.5}, rating:89},
+  {name:"Flávio Gualberto",      nation:"BRA",pos:"OPP",years:[2018,2019],                       stats:{kills:47,pts:14.6,blocks:0.7,aces:0.6}, rating:85},
+  {name:"Renan Buiatti",         nation:"BRA",pos:"L",  years:[2021,2022,2023,2024,2025,2026],             stats:{digs:5.8,recEff:76,perfect:38},          rating:88},
+  {name:"William Arjona",        nation:"BRA",pos:"L",  years:[2018,2019,2021],                  stats:{digs:5.3,recEff:72,perfect:35},          rating:84},
+
+  // ── USA ──
+  {name:"Micah Christenson",     nation:"USA",pos:"S",  years:[2018,2019,2021,2022,2023,2024,2025,2026], stats:{setEff:90,aces:0.5,digs:1.5,runEff:88}, rating:92},
+  {name:"Kawika Shoji",          nation:"USA",pos:"S",  years:[2018,2019],                       stats:{setEff:85,aces:0.3,digs:1.3,runEff:84}, rating:83},
+  {name:"Josh Tuaniga",          nation:"USA",pos:"S",  years:[2022,2023,2024,2025,2026],                  stats:{setEff:86,aces:0.4,digs:1.2,runEff:85}, rating:82},
+  {name:"TJ DeFalco",            nation:"USA",pos:"OH", years:[2018,2019,2021,2022],             stats:{kills:47,pts:14.9,digs:2.3,aces:0.4},   rating:87},
+  {name:"Thomas Jaeschke",       nation:"USA",pos:"OH", years:[2018,2019,2021,2022],             stats:{kills:45,pts:12.4,digs:3.0,aces:0.3},   rating:86},
+  {name:"Torey DeFalco",         nation:"USA",pos:"OH", years:[2022,2023,2024,2025,2026],                  stats:{kills:46,pts:13.5,digs:2.8,aces:0.4},   rating:85},
+  {name:"Kyle Ensing",           nation:"USA",pos:"OH", years:[2021,2022],                       stats:{kills:44,pts:11.8,digs:2.5,aces:0.3},   rating:82},
+  {name:"Ben Patch",             nation:"USA",pos:"OH", years:[2018,2019],                       stats:{kills:43,pts:11.2,digs:2.4,aces:0.3},   rating:80},
+  {name:"Maxwell Holt",          nation:"USA",pos:"MB", years:[2018,2019,2021],                  stats:{kills:57,blocks:1.2,pts:6.8,eff:52},    rating:88},
+  {name:"Taylor Averill",        nation:"USA",pos:"MB", years:[2021,2022,2023,2024,2025,2026],             stats:{kills:57,blocks:1.4,pts:7.1,eff:53},    rating:87},
+  {name:"David Smith",           nation:"USA",pos:"MB", years:[2018,2019,2021,2022,2023,2024,2025,2026], stats:{kills:55,blocks:1.0,pts:5.9,eff:50},    rating:84},
+  {name:"Jeffrey Jendryk",       nation:"USA",pos:"MB", years:[2019,2021,2022],                  stats:{kills:54,blocks:1.1,pts:6.2,eff:49},    rating:82},
+  {name:"Matt Anderson",         nation:"USA",pos:"OPP",years:[2018,2019,2021,2022,2023,2024,2025,2026], stats:{kills:51,pts:17.8,blocks:0.7,aces:0.6}, rating:94},
+  {name:"Aaron Russell",         nation:"USA",pos:"OPP",years:[2018,2019,2021],                  stats:{kills:48,pts:15.3,blocks:0.6,aces:0.5}, rating:89},
+  {name:"Erik Shoji",            nation:"USA",pos:"L",  years:[2018,2019,2021,2022,2023,2024,2025,2026], stats:{digs:5.7,recEff:75,perfect:40},          rating:91},
+
+  // ── ITALY ──
+  {name:"Simone Giannelli",      nation:"ITA",pos:"S",  years:[2018,2019,2021,2022,2023,2024,2025,2026],   stats:{setEff:93,aces:0.4,digs:1.7,runEff:92}, rating:98},
+  {name:"Daniele Lavia",         nation:"ITA",pos:"OH", years:[2021,2022,2023,2024,2025,2026],             stats:{kills:50,pts:16.8,digs:2.6,aces:0.5},   rating:92},
+  {name:"Alessandro Michieletto",nation:"ITA",pos:"OH", years:[2021,2022,2023,2024,2025,2026],             stats:{kills:47,pts:15.4,digs:2.9,aces:0.6},   rating:91},
+  {name:"Osmany Juantorena",     nation:"ITA",pos:"OH", years:[2018,2019,2021],                  stats:{kills:48,pts:14.5,digs:2.4,aces:0.5},   rating:90},
+  {name:"Mattia Bottolo",        nation:"ITA",pos:"OH", years:[2022,2023,2024,2025,2026],                  stats:{kills:46,pts:13.9,digs:2.7,aces:0.4},   rating:86},
+  {name:"Simone Anzani",         nation:"ITA",pos:"MB", years:[2018,2019,2021,2022,2023,2024,2025,2026],   stats:{kills:59,blocks:1.2,pts:7.3,eff:54},    rating:88},
+  {name:"Roberto Russo",         nation:"ITA",pos:"MB", years:[2018,2019,2021,2022],             stats:{kills:57,blocks:1.1,pts:6.1,eff:51},    rating:85},
+  {name:"Gianluca Galassi",      nation:"ITA",pos:"MB", years:[2022,2023,2024,2025,2026],                  stats:{kills:58,blocks:1.3,pts:7.0,eff:53},    rating:86},
+  {name:"Ivan Zaytsev",          nation:"ITA",pos:"OPP",years:[2018,2019,2021],                  stats:{kills:54,pts:19.2,blocks:0.9,aces:0.8}, rating:95},
+  {name:"Yuri Romanò",           nation:"ITA",pos:"OPP",years:[2022,2023,2024,2025,2026],                  stats:{kills:51,pts:17.0,blocks:0.7,aces:0.6}, rating:88},
+  {name:"Fabio Balaso",          nation:"ITA",pos:"L",  years:[2018,2019,2021,2022,2023,2024,2025,2026],   stats:{digs:6.1,recEff:78,perfect:42},          rating:93},
+  {name:"Salvatore Rossini",     nation:"ITA",pos:"L",  years:[2018,2019],                       stats:{digs:5.6,recEff:73,perfect:36},          rating:85},
+
+  // ── POLAND ──
+  {name:"Fabian Drzyzga",        nation:"POL",pos:"S",  years:[2018,2019,2021,2022],             stats:{setEff:88,aces:0.4,digs:1.4,runEff:87}, rating:87},
+  {name:"Marcin Janusz",         nation:"POL",pos:"S",  years:[2021,2022,2023,2024,2025,2026],             stats:{setEff:89,aces:0.5,digs:1.6,runEff:88}, rating:89},
+  {name:"Grzegorz Lomacz",       nation:"POL",pos:"S",  years:[2018,2019],                       stats:{setEff:84,aces:0.3,digs:1.2,runEff:83}, rating:80},
+  {name:"Wilfredo Leon",         nation:"POL",pos:"OH", years:[2018,2019,2021,2022,2023,2024,2025,2026],   stats:{kills:53,pts:18.7,digs:2.2,aces:0.8},   rating:96},
+  {name:"Kamil Semeniuk",        nation:"POL",pos:"OH", years:[2021,2022,2023,2024,2025,2026],             stats:{kills:49,pts:15.6,digs:2.7,aces:0.5},   rating:90},
+  {name:"Dawid Konarski",        nation:"POL",pos:"OH", years:[2018,2019,2021],                  stats:{kills:45,pts:13.2,digs:2.5,aces:0.4},   rating:84},
+  {name:"Piotr Nowakowski",      nation:"POL",pos:"MB", years:[2018,2019,2021,2022,2023,2024,2025,2026],   stats:{kills:60,blocks:1.3,pts:8.1,eff:55},    rating:90},
+  {name:"Mateusz Bieniek",       nation:"POL",pos:"MB", years:[2018,2019,2021,2022,2023,2024,2025,2026],   stats:{kills:59,blocks:1.2,pts:7.6,eff:54},    rating:89},
+  {name:"Jakub Kochanowski",     nation:"POL",pos:"MB", years:[2021,2022,2023,2024,2025,2026],             stats:{kills:57,blocks:1.4,pts:6.9,eff:52},    rating:87},
+  {name:"Karol Klos",            nation:"POL",pos:"MB", years:[2018,2019],                       stats:{kills:55,blocks:1.0,pts:6.0,eff:49},    rating:82},
+  {name:"Bartosz Kurek",         nation:"POL",pos:"OPP",years:[2018,2019,2021,2022,2023,2024,2025,2026],   stats:{kills:55,pts:20.3,blocks:0.9,aces:0.7}, rating:97},
+  {name:"Lukasz Kaczmarek",      nation:"POL",pos:"OPP",years:[2022,2023,2024,2025,2026],                  stats:{kills:52,pts:17.4,blocks:0.8,aces:0.6}, rating:88},
+  {name:"Michal Kubiak",         nation:"POL",pos:"OPP",years:[2018,2019,2021],                  stats:{kills:49,pts:15.8,blocks:0.6,aces:0.5}, rating:85},
+  {name:"Pawel Zatorski",        nation:"POL",pos:"L",  years:[2018,2019,2021,2022,2023,2024,2025,2026],   stats:{digs:6.2,recEff:80,perfect:45},          rating:92},
+  {name:"Damian Wojtaszek",      nation:"POL",pos:"L",  years:[2018,2019],                       stats:{digs:5.2,recEff:70,perfect:33},          rating:79},
+
+  // ── FRANCE ──
+  {name:"Antoine Brizard",       nation:"FRA",pos:"S",  years:[2018,2019,2021,2022,2023,2024,2025,2026],   stats:{setEff:90,aces:0.5,digs:1.6,runEff:89}, rating:90},
+  {name:"Benjamin Toniutti",     nation:"FRA",pos:"S",  years:[2018,2019,2021],                  stats:{setEff:87,aces:0.3,digs:1.3,runEff:86}, rating:86},
+  {name:"Earvin Ngapeth",        nation:"FRA",pos:"OH", years:[2018,2019,2021,2022],             stats:{kills:51,pts:17.2,digs:3.0,aces:0.7},   rating:95},
+  {name:"Kevin Tillie",          nation:"FRA",pos:"OH", years:[2018,2019,2021],                  stats:{kills:45,pts:13.8,digs:2.8,aces:0.4},   rating:87},
+  {name:"Trévor Clevenot",       nation:"FRA",pos:"OH", years:[2021,2022,2023,2024,2025,2026],             stats:{kills:46,pts:13.4,digs:2.5,aces:0.4},   rating:86},
+  {name:"Stephen Boyer",         nation:"FRA",pos:"OH", years:[2019,2021,2022],                  stats:{kills:44,pts:12.8,digs:2.4,aces:0.3},   rating:83},
+  {name:"Nicolas Le Goff",       nation:"FRA",pos:"MB", years:[2018,2019,2021,2022],             stats:{kills:58,blocks:1.1,pts:6.5,eff:52},    rating:85},
+  {name:"Barthélémy Chinenyeze", nation:"FRA",pos:"MB", years:[2019,2021,2022,2023,2024,2025,2026],        stats:{kills:60,blocks:1.3,pts:7.2,eff:55},    rating:89},
+  {name:"Jean Patry",            nation:"FRA",pos:"OPP",years:[2018,2019,2021,2022,2023,2024,2025,2026],   stats:{kills:50,pts:16.5,blocks:0.8,aces:0.6}, rating:91},
+  {name:"Thibault Rossard",      nation:"FRA",pos:"OPP",years:[2018,2019],                       stats:{kills:46,pts:13.1,blocks:0.5,aces:0.4}, rating:79},
+  {name:"Jénia Grebennikov",     nation:"FRA",pos:"L",  years:[2018,2019,2021,2022,2023,2024,2025,2026],   stats:{digs:5.9,recEff:76,perfect:39},          rating:90},
+
+  // ── SERBIA ──
+  {name:"Drazen Luburic",        nation:"SRB",pos:"S",  years:[2018,2019,2021],                  stats:{setEff:86,aces:0.3,digs:1.3,runEff:85}, rating:83},
+  {name:"Nikola Rosic",          nation:"SRB",pos:"S",  years:[2021,2022,2023,2024,2025,2026],             stats:{setEff:88,aces:0.4,digs:1.5,runEff:87}, rating:86},
+  {name:"Uros Kovacevic",        nation:"SRB",pos:"OH", years:[2018,2019,2021,2022],             stats:{kills:47,pts:14.6,digs:2.6,aces:0.5},   rating:89},
+  {name:"Nikola Jovovic",        nation:"SRB",pos:"OH", years:[2018,2019,2021,2022],             stats:{kills:45,pts:13.1,digs:2.9,aces:0.3},   rating:85},
+  {name:"Marko Ivovic",          nation:"SRB",pos:"OH", years:[2018,2019,2021],                  stats:{kills:44,pts:12.4,digs:2.5,aces:0.4},   rating:82},
+  {name:"Petar Krsmanovic",      nation:"SRB",pos:"OH", years:[2022,2023,2024,2025,2026],                  stats:{kills:45,pts:13.0,digs:2.4,aces:0.3},   rating:82},
+  {name:"Srecko Lisinac",        nation:"SRB",pos:"MB", years:[2018,2019,2021,2022,2023,2024,2025,2026],   stats:{kills:61,blocks:1.4,pts:8.3,eff:57},    rating:91},
+  {name:"Marko Podrascanin",     nation:"SRB",pos:"MB", years:[2018,2019,2021,2022,2023,2024,2025,2026], stats:{kills:59,blocks:1.1,pts:7.0,eff:53},    rating:87},
+  {name:"Stefan Rasic",          nation:"SRB",pos:"MB", years:[2018,2019],                       stats:{kills:55,blocks:0.9,pts:5.8,eff:48},    rating:79},
+  {name:"Aleksandar Atanasijevic",nation:"SRB",pos:"OPP",years:[2018,2019,2021,2022],            stats:{kills:54,pts:19.8,blocks:0.9,aces:0.7}, rating:94},
+  {name:"Nemanja Masulovic",     nation:"SRB",pos:"OPP",years:[2021,2022,2023,2024,2025,2026],             stats:{kills:50,pts:16.2,blocks:0.7,aces:0.5}, rating:87},
+  {name:"Nemanja Petric",        nation:"SRB",pos:"OPP",years:[2018,2019],                       stats:{kills:47,pts:13.9,blocks:0.5,aces:0.4}, rating:79},
+  {name:"Nikola Milic",          nation:"SRB",pos:"L",  years:[2018,2019,2021,2022,2023,2024,2025,2026],   stats:{digs:5.8,recEff:74,perfect:37},          rating:87},
+
+  // ── RUSSIA (2018–2021; suspended from 2022) ──
+  {name:"Sergei Grankin",        nation:"RUS",pos:"S",  years:[2018,2019],                       stats:{setEff:89,aces:0.4,digs:1.4,runEff:88}, rating:88},
+  {name:"Yaroslav Podlesnykh",   nation:"RUS",pos:"S",  years:[2019,2021],                       stats:{setEff:87,aces:0.3,digs:1.3,runEff:86}, rating:84},
+  {name:"Dmitry Volkov",         nation:"RUS",pos:"OH", years:[2018,2019,2021],                  stats:{kills:48,pts:15.4,digs:2.2,aces:0.5},   rating:90},
+  {name:"Alexey Spiridonov",     nation:"RUS",pos:"OH", years:[2018,2019],                       stats:{kills:46,pts:13.8,digs:2.3,aces:0.5},   rating:85},
+  {name:"Viktor Poletaev",       nation:"RUS",pos:"OH", years:[2019,2021],                       stats:{kills:47,pts:14.2,digs:2.1,aces:0.4},   rating:87},
+  {name:"Egor Kliuka",           nation:"RUS",pos:"OH", years:[2019,2021],                       stats:{kills:46,pts:13.5,digs:2.0,aces:0.4},   rating:85},
+  {name:"Dmitry Muserskiy",      nation:"RUS",pos:"MB", years:[2018,2019,2021],                  stats:{kills:63,blocks:1.8,pts:9.1,eff:60},    rating:93},
+  {name:"Artem Volvich",         nation:"RUS",pos:"MB", years:[2018,2019,2021],                  stats:{kills:58,blocks:1.3,pts:7.2,eff:53},    rating:86},
+  {name:"Ilia Vlasov",           nation:"RUS",pos:"MB", years:[2019,2021],                       stats:{kills:56,blocks:1.2,pts:6.5,eff:50},    rating:82},
+  {name:"Maxim Mikhaylov",       nation:"RUS",pos:"OPP",years:[2018,2019,2021],                  stats:{kills:53,pts:20.1,blocks:0.8,aces:0.7}, rating:95},
+  {name:"Ivan Iakovlev",         nation:"RUS",pos:"OPP",years:[2018,2019],                       stats:{kills:49,pts:15.6,blocks:0.6,aces:0.5}, rating:84},
+  {name:"Alexei Verbov",         nation:"RUS",pos:"L",  years:[2018,2019,2021],                  stats:{digs:5.8,recEff:74,perfect:38},          rating:87},
+  {name:"Nikita Alexeev",        nation:"RUS",pos:"L",  years:[2019,2021],                       stats:{digs:5.4,recEff:71,perfect:35},          rating:82},
+
+  // ── JAPAN ──
+  {name:"Ran Takahashi",         nation:"JPN",pos:"S",  years:[2021,2022,2023,2024,2025,2026],             stats:{setEff:89,aces:0.5,digs:1.6,runEff:88}, rating:88},
+  {name:"Keisuke Numajiri",      nation:"JPN",pos:"S",  years:[2018,2019,2021],                  stats:{setEff:85,aces:0.3,digs:1.2,runEff:84}, rating:80},
+  {name:"Yuji Nishida",          nation:"JPN",pos:"OPP",years:[2018,2019,2021,2022,2023,2024,2025,2026],   stats:{kills:55,pts:19.8,blocks:0.7,aces:1.0}, rating:93},
+  {name:"Yuki Ishikawa",         nation:"JPN",pos:"OH", years:[2018,2019,2021,2022,2023,2024,2025,2026],   stats:{kills:48,pts:15.1,digs:2.3,aces:0.6},   rating:90},
+  {name:"Masahiro Yanagida",     nation:"JPN",pos:"OH", years:[2018,2019,2021],                  stats:{kills:44,pts:12.0,digs:2.5,aces:0.4},   rating:82},
+  {name:"Issei Otake",           nation:"JPN",pos:"OH", years:[2022,2023,2024,2025,2026],                  stats:{kills:46,pts:13.4,digs:2.4,aces:0.4},   rating:84},
+  {name:"Tatsuya Fukuzawa",      nation:"JPN",pos:"MB", years:[2021,2022,2023,2024,2025,2026],             stats:{kills:57,blocks:1.2,pts:6.7,eff:52},    rating:85},
+  {name:"Masahiro Sekita",       nation:"JPN",pos:"MB", years:[2018,2019,2021],                  stats:{kills:54,blocks:1.0,pts:5.8,eff:48},    rating:82},
+  {name:"Yuta Yoneyama",         nation:"JPN",pos:"MB", years:[2018,2019,2021],                  stats:{kills:55,blocks:1.1,pts:6.0,eff:49},    rating:81},
+  {name:"Akihiro Yamauchi",      nation:"JPN",pos:"MB", years:[2022,2023,2024,2025,2026],                  stats:{kills:56,blocks:1.3,pts:6.4,eff:51},    rating:83},
+  {name:"Kenta Takanashi",       nation:"JPN",pos:"OPP",years:[2018,2019,2021],                  stats:{kills:47,pts:13.8,blocks:0.6,aces:0.4}, rating:81},
+  {name:"Kunihiro Shimizu",      nation:"JPN",pos:"L",  years:[2018,2019,2021,2022],             stats:{digs:5.4,recEff:71,perfect:35},          rating:84},
+  {name:"Hiroo Imai",            nation:"JPN",pos:"L",  years:[2022,2023,2024,2025,2026],                  stats:{digs:5.6,recEff:73,perfect:37},          rating:83},
+
+  // ── ARGENTINA ──
+  {name:"Luciano De Cecco",      nation:"ARG",pos:"S",  years:[2018,2019,2021,2022],             stats:{setEff:91,aces:0.4,digs:1.5,runEff:90}, rating:89},
+  {name:"Alexis Gonzalez",       nation:"ARG",pos:"S",  years:[2021,2022,2023,2024,2025,2026],             stats:{setEff:85,aces:0.3,digs:1.2,runEff:84}, rating:80},
+  {name:"Facundo Conte",         nation:"ARG",pos:"OH", years:[2018,2019,2021,2022],             stats:{kills:48,pts:15.6,digs:2.8,aces:0.5},   rating:90},
+  {name:"Bruno Lima",            nation:"ARG",pos:"OH", years:[2018,2019,2021,2022],             stats:{kills:45,pts:13.2,digs:2.6,aces:0.4},   rating:85},
+  {name:"Nicolas Zerba",         nation:"ARG",pos:"OH", years:[2021,2022,2023,2024,2025,2026],             stats:{kills:43,pts:11.8,digs:2.4,aces:0.3},   rating:80},
+  {name:"Santiago Danani",       nation:"ARG",pos:"OH", years:[2018,2019,2021,2022],             stats:{kills:42,pts:11.0,digs:2.2,aces:0.3},   rating:78},
+  {name:"Agustin Loser",         nation:"ARG",pos:"MB", years:[2019,2021,2022,2023,2024,2025,2026],        stats:{kills:61,blocks:1.3,pts:7.8,eff:56},    rating:88},
+  {name:"Ezequiel Palacios",     nation:"ARG",pos:"MB", years:[2018,2019,2021,2022],             stats:{kills:57,blocks:1.1,pts:6.5,eff:51},    rating:83},
+  {name:"Tobias Krick",          nation:"ARG",pos:"MB", years:[2021,2022,2023,2024,2025,2026],             stats:{kills:55,blocks:1.0,pts:6.0,eff:49},    rating:80},
+  {name:"Sebastian Sole",        nation:"ARG",pos:"OPP",years:[2018,2019,2021],                  stats:{kills:48,pts:14.8,blocks:0.7,aces:0.5}, rating:84},
+  {name:"Jan Martinez",          nation:"ARG",pos:"OPP",years:[2021,2022,2023,2024,2025,2026],             stats:{kills:46,pts:13.5,blocks:0.6,aces:0.4}, rating:80},
+  {name:"Nicolas Uriarte",       nation:"ARG",pos:"L",  years:[2018,2019,2021,2022],             stats:{digs:5.1,recEff:70,perfect:33},          rating:82},
+
+  // ── SLOVENIA ──
+  {name:"Dejan Vincic",          nation:"SLO",pos:"S",  years:[2018,2019,2021],                  stats:{setEff:88,aces:0.3,digs:1.4,runEff:87}, rating:85},
+  {name:"Gregor Ropret",         nation:"SLO",pos:"S",  years:[2021,2022,2023,2024,2025,2026],             stats:{setEff:87,aces:0.4,digs:1.5,runEff:86}, rating:86},
+  {name:"Tine Urnaut",           nation:"SLO",pos:"OH", years:[2018,2019,2021,2022,2023,2024,2025,2026],   stats:{kills:50,pts:16.4,digs:2.5,aces:0.6},   rating:91},
+  {name:"Klemen Cebulj",         nation:"SLO",pos:"OH", years:[2018,2019,2021,2022],             stats:{kills:45,pts:13.5,digs:2.6,aces:0.4},   rating:84},
+  {name:"Rok Mozic",             nation:"SLO",pos:"OH", years:[2021,2022,2023,2024,2025,2026],             stats:{kills:47,pts:14.3,digs:2.3,aces:0.4},   rating:85},
+  {name:"Jan Kozamernik",        nation:"SLO",pos:"MB", years:[2018,2019,2021,2022,2023,2024,2025,2026],   stats:{kills:60,blocks:1.3,pts:7.5,eff:55},    rating:88},
+  {name:"Alen Pajenk",           nation:"SLO",pos:"MB", years:[2018,2019,2021,2022,2023,2024,2025,2026],   stats:{kills:58,blocks:1.2,pts:7.1,eff:52},    rating:86},
+  {name:"Toncek Stern",          nation:"SLO",pos:"OPP",years:[2022,2023,2024,2025,2026],                  stats:{kills:50,pts:17.0,blocks:0.7,aces:0.6}, rating:88},
+  {name:"Alen Sket",             nation:"SLO",pos:"OPP",years:[2018,2019,2021],                  stats:{kills:46,pts:13.2,blocks:0.5,aces:0.4}, rating:79},
+  {name:"Matic Videcnik",        nation:"SLO",pos:"L",  years:[2018,2019,2021,2022,2023,2024,2025,2026],   stats:{digs:5.3,recEff:71,perfect:34},          rating:82},
+
+  // ── IRAN ──
+  {name:"Saeid Marouf",          nation:"IRI",pos:"S",  years:[2018,2019,2021],                  stats:{setEff:92,aces:0.5,digs:1.6,runEff:91}, rating:89},
+  {name:"Amir Hossein Toukhteh", nation:"IRI",pos:"S",  years:[2021,2022,2023,2024,2025,2026],             stats:{setEff:86,aces:0.4,digs:1.3,runEff:85}, rating:82},
+  {name:"Milad Ebadipour",       nation:"IRI",pos:"OH", years:[2018,2019,2021,2022],             stats:{kills:47,pts:14.2,digs:2.4,aces:0.4},   rating:86},
+  {name:"Mahdi Marandi",         nation:"IRI",pos:"OH", years:[2018,2019,2021],                  stats:{kills:44,pts:12.1,digs:2.3,aces:0.3},   rating:80},
+  {name:"Pouriya Firouzian",     nation:"IRI",pos:"OH", years:[2021,2022,2023,2024,2025,2026],             stats:{kills:45,pts:12.8,digs:2.2,aces:0.3},   rating:80},
+  {name:"Seyyed M. Mousavi",     nation:"IRI",pos:"MB", years:[2018,2019,2021,2022],             stats:{kills:62,blocks:1.5,pts:9.1,eff:58},    rating:91},
+  {name:"Farhad Zarif",          nation:"IRI",pos:"MB", years:[2018,2019,2021,2022],             stats:{kills:57,blocks:1.1,pts:6.3,eff:51},    rating:82},
+  {name:"Mohammad Rajabi",       nation:"IRI",pos:"MB", years:[2021,2022,2023,2024,2025,2026],             stats:{kills:56,blocks:1.2,pts:6.8,eff:52},    rating:83},
+  {name:"Amir Ghafour",          nation:"IRI",pos:"OPP",years:[2018,2019,2021,2022],             stats:{kills:49,pts:15.9,blocks:0.5,aces:0.6}, rating:88},
+  {name:"Seyed M. Mousavi Jr.",  nation:"IRI",pos:"OPP",years:[2022,2023,2024,2025,2026],                  stats:{kills:48,pts:14.5,blocks:0.6,aces:0.5}, rating:82},
+  {name:"Ramin Mirshajalali",    nation:"IRI",pos:"L",  years:[2018,2019,2021,2022],             stats:{digs:5.3,recEff:71,perfect:34},          rating:83},
+  {name:"Pedram Eskandari",      nation:"IRI",pos:"L",  years:[2021,2022,2023,2024,2025,2026],             stats:{digs:5.5,recEff:73,perfect:36},          rating:82},
+
+  // ── NETHERLANDS ──
+  {name:"Stef van Manen",        nation:"NED",pos:"S",  years:[2018,2019,2021,2022],             stats:{setEff:86,aces:0.3,digs:1.3,runEff:85}, rating:82},
+  {name:"Thijs Ter Horst",       nation:"NED",pos:"OH", years:[2018,2019,2021,2022],             stats:{kills:45,pts:13.4,digs:2.3,aces:0.4},   rating:84},
+  {name:"Gijs Jorna",            nation:"NED",pos:"OH", years:[2018,2019,2021,2022],             stats:{kills:43,pts:12.6,digs:2.5,aces:0.3},   rating:82},
+  {name:"Thomas Koelewijn",      nation:"NED",pos:"OH", years:[2021,2022],                       stats:{kills:42,pts:11.5,digs:2.2,aces:0.3},   rating:78},
+  {name:"Just Dronkers",         nation:"NED",pos:"MB", years:[2018,2019,2021,2022],             stats:{kills:56,blocks:1.2,pts:6.4,eff:51},    rating:83},
+  {name:"Wessel Keemink",        nation:"NED",pos:"MB", years:[2018,2019,2021],                  stats:{kills:54,blocks:1.0,pts:5.8,eff:48},    rating:79},
+  {name:"Maarten van Garderen",  nation:"NED",pos:"MB", years:[2019,2021,2022],                  stats:{kills:55,blocks:1.1,pts:6.1,eff:50},    rating:81},
+  {name:"Nimir Abdel-Aziz",      nation:"NED",pos:"OPP",years:[2018,2019,2021,2022],             stats:{kills:57,pts:21.4,blocks:0.8,aces:0.9}, rating:96},
+  {name:"Michael Parkinson",     nation:"NED",pos:"L",  years:[2018,2019,2021,2022],             stats:{digs:5.2,recEff:70,perfect:32},          rating:81},
+
+  // ── GERMANY ──
+  {name:"Lukas Kampa",           nation:"GER",pos:"S",  years:[2018,2019,2021,2022],             stats:{setEff:87,aces:0.4,digs:1.4,runEff:86}, rating:84},
+  {name:"Johannes Tille",        nation:"GER",pos:"S",  years:[2021,2022,2023,2024,2025,2026],             stats:{setEff:86,aces:0.3,digs:1.3,runEff:85}, rating:83},
+  {name:"Christian Fromm",       nation:"GER",pos:"OH", years:[2018,2019,2021,2022],             stats:{kills:46,pts:13.8,digs:2.5,aces:0.4},   rating:86},
+  {name:"Linus Weber",           nation:"GER",pos:"OH", years:[2021,2022,2023,2024,2025,2026],             stats:{kills:44,pts:12.5,digs:2.3,aces:0.3},   rating:82},
+  {name:"Anton Brehme",          nation:"GER",pos:"OH", years:[2018,2019,2021],                  stats:{kills:43,pts:11.8,digs:2.2,aces:0.3},   rating:79},
+  {name:"Moritz Reichert",       nation:"GER",pos:"MB", years:[2018,2019,2021],                  stats:{kills:56,blocks:1.1,pts:6.2,eff:50},    rating:81},
+  {name:"Tobias Brand",          nation:"GER",pos:"MB", years:[2018,2019,2021,2022,2023,2024,2025,2026], stats:{kills:55,blocks:1.0,pts:5.8,eff:49},    rating:80},
+  {name:"Florian Krage",         nation:"GER",pos:"MB", years:[2021,2022,2023,2024,2025,2026],             stats:{kills:57,blocks:1.2,pts:6.5,eff:51},    rating:82},
+  {name:"Georg Grozer",          nation:"GER",pos:"OPP",years:[2018,2019],                       stats:{kills:55,pts:20.1,blocks:0.8,aces:0.7}, rating:92},
+  {name:"Gyorgy Grozer",         nation:"GER",pos:"OPP",years:[2021,2022,2023,2024,2025,2026],             stats:{kills:51,pts:17.2,blocks:0.7,aces:0.6}, rating:88},
+  {name:"Stefan Windisch",       nation:"GER",pos:"L",  years:[2018,2019,2021,2022,2023,2024,2025,2026],   stats:{digs:5.1,recEff:69,perfect:31},          rating:80},
+
+  // ── CANADA ──
+  {name:"Ryan Sclater",          nation:"CAN",pos:"S",  years:[2018,2019,2021,2022],             stats:{setEff:84,aces:0.3,digs:1.2,runEff:83}, rating:79},
+  {name:"Nicholas Hoag",         nation:"CAN",pos:"OH", years:[2018,2019,2021,2022],             stats:{kills:44,pts:12.9,digs:2.6,aces:0.3},   rating:82},
+  {name:"Steven Marshall",       nation:"CAN",pos:"OH", years:[2018,2019,2021,2022],             stats:{kills:43,pts:12.0,digs:2.4,aces:0.3},   rating:80},
+  {name:"Aaron Boogaard",        nation:"CAN",pos:"MB", years:[2018,2019,2021],                  stats:{kills:54,blocks:1.0,pts:5.8,eff:48},    rating:80},
+  {name:"Graham Vigrass",        nation:"CAN",pos:"MB", years:[2021,2022,2023,2024,2025,2026],             stats:{kills:57,blocks:1.2,pts:6.6,eff:51},    rating:83},
+  {name:"Luke Perry",            nation:"CAN",pos:"MB", years:[2018,2019,2021],                  stats:{kills:53,blocks:0.9,pts:5.5,eff:47},    rating:78},
+  {name:"Daniel Jendryk",        nation:"CAN",pos:"OPP",years:[2018,2019,2021],                  stats:{kills:47,pts:13.4,blocks:0.5,aces:0.4}, rating:80},
+  {name:"Brett Walsh",           nation:"CAN",pos:"OPP",years:[2021,2022,2023,2024,2025,2026],             stats:{kills:48,pts:14.1,blocks:0.6,aces:0.4}, rating:81},
+  {name:"Jon Doehler",           nation:"CAN",pos:"L",  years:[2018,2019,2021,2022],             stats:{digs:5.0,recEff:68,perfect:30},          rating:79},
+
+  // ── TURKEY ──
+  {name:"Arslan Eksi",           nation:"TUR",pos:"S",  years:[2018,2019,2021,2022,2023,2024,2025,2026],   stats:{setEff:87,aces:0.4,digs:1.3,runEff:86}, rating:82},
+  {name:"Ogulcan Caglayan",      nation:"TUR",pos:"S",  years:[2022,2023,2024,2025,2026],                  stats:{setEff:85,aces:0.3,digs:1.2,runEff:84}, rating:79},
+  {name:"Yacine Louati",         nation:"TUR",pos:"OH", years:[2021,2022,2023,2024,2025,2026],             stats:{kills:46,pts:14.1,digs:2.4,aces:0.4},   rating:85},
+  {name:"Mert Metin",            nation:"TUR",pos:"OH", years:[2018,2019,2021,2022,2023,2024,2025,2026],   stats:{kills:44,pts:12.6,digs:2.3,aces:0.3},   rating:81},
+  {name:"Isa Altinok",           nation:"TUR",pos:"MB", years:[2018,2019,2021,2022,2023,2024,2025,2026],   stats:{kills:57,blocks:1.2,pts:6.8,eff:52},    rating:84},
+  {name:"Ahmet Gungor",          nation:"TUR",pos:"MB", years:[2018,2019,2021,2022,2023,2024,2025,2026],   stats:{kills:55,blocks:1.1,pts:6.0,eff:49},    rating:80},
+  {name:"Adis Lagumdzija",       nation:"TUR",pos:"OPP",years:[2021,2022,2023,2024,2025,2026],             stats:{kills:53,pts:19.3,blocks:0.8,aces:0.7}, rating:91},
+  {name:"Onur Saniyev",          nation:"TUR",pos:"L",  years:[2018,2019,2021,2022,2023,2024,2025,2026],   stats:{digs:5.3,recEff:71,perfect:34},          rating:82},
+
+  // ── BRAZIL (extra) ──
+  {name:"Darlan",                nation:"BRA",pos:"OPP",years:[2018,2019],                       stats:{kills:48,pts:15.2,blocks:0.7,aces:0.5}, rating:86},
+  {name:"Robson Santana",        nation:"BRA",pos:"OH", years:[2021,2022],                       stats:{kills:43,pts:11.9,digs:2.4,aces:0.3},   rating:79},
+  {name:"Adriano",               nation:"BRA",pos:"OPP",years:[2022,2023,2024,2025,2026],                  stats:{kills:49,pts:15.8,blocks:0.7,aces:0.5}, rating:83},
+  {name:"Fernando Cachopa",      nation:"BRA",pos:"MB", years:[2018,2019],                       stats:{kills:56,blocks:1.1,pts:5.9,eff:50},    rating:79},
+
+  // ── USA (extra) ──
+  {name:"Jonah Seif",            nation:"USA",pos:"OH", years:[2022,2023,2024,2025,2026],                  stats:{kills:43,pts:11.5,digs:2.3,aces:0.3},   rating:80},
+  {name:"Garrett Muagututia",    nation:"USA",pos:"OH", years:[2023,2024,2025,2026],                       stats:{kills:44,pts:12.0,digs:2.2,aces:0.3},   rating:79},
+  {name:"Jake Hanes",            nation:"USA",pos:"MB", years:[2022,2023,2024,2025,2026],                  stats:{kills:55,blocks:1.1,pts:6.0,eff:50},    rating:81},
+  {name:"Mitch Stahl",           nation:"USA",pos:"MB", years:[2023,2024,2025,2026],                       stats:{kills:54,blocks:1.0,pts:5.7,eff:48},    rating:79},
+
+  // ── ITALY (extra) ──
+  {name:"Filippo Lanza",         nation:"ITA",pos:"OH", years:[2018,2019],                       stats:{kills:44,pts:12.8,digs:2.3,aces:0.4},   rating:83},
+  {name:"Giulio Pinali",         nation:"ITA",pos:"OH", years:[2021,2022],                       stats:{kills:43,pts:11.5,digs:2.2,aces:0.3},   rating:80},
+  {name:"Oreste Cavuto",         nation:"ITA",pos:"OH", years:[2021,2022],                       stats:{kills:42,pts:11.0,digs:2.1,aces:0.3},   rating:78},
+  {name:"Daniele Mazzone",       nation:"ITA",pos:"MB", years:[2018,2019],                       stats:{kills:55,blocks:1.0,pts:5.5,eff:48},    rating:79},
+
+  // ── POLAND (extra) ──
+  {name:"Tomasz Fornal",         nation:"POL",pos:"OH", years:[2021,2022,2023,2024,2025,2026],             stats:{kills:48,pts:14.8,digs:2.8,aces:0.5},   rating:88},
+  {name:"Artur Szalpuk",         nation:"POL",pos:"OH", years:[2018,2019,2021],                  stats:{kills:44,pts:12.3,digs:2.4,aces:0.3},   rating:82},
+  {name:"Rafal Bienias",         nation:"POL",pos:"OH", years:[2018,2019],                       stats:{kills:43,pts:11.5,digs:2.3,aces:0.3},   rating:79},
+  {name:"Jan Firlej",            nation:"POL",pos:"MB", years:[2022,2023,2024,2025,2026],                  stats:{kills:56,blocks:1.1,pts:6.1,eff:50},    rating:81},
+
+  // ── FRANCE (extra) ──
+  {name:"Julien Lyneel",         nation:"FRA",pos:"OH", years:[2021,2022,2023,2024,2025,2026],             stats:{kills:45,pts:13.0,digs:2.4,aces:0.4},   rating:84},
+  {name:"Nicolas Marechal",      nation:"FRA",pos:"OH", years:[2018,2019],                       stats:{kills:43,pts:11.8,digs:2.3,aces:0.3},   rating:79},
+  {name:"Yéni Yéni",             nation:"FRA",pos:"MB", years:[2022,2023,2024,2025,2026],                  stats:{kills:57,blocks:1.1,pts:6.3,eff:51},    rating:82},
+
+  // ── SERBIA (extra) ──
+  {name:"Danilo Pavlovic",       nation:"SRB",pos:"OPP",years:[2022,2023,2024,2025,2026],                  stats:{kills:51,pts:17.0,blocks:0.7,aces:0.6}, rating:86},
+  {name:"Sasa Starovic",         nation:"SRB",pos:"L",  years:[2018,2019,2021],                  stats:{digs:5.2,recEff:70,perfect:33},          rating:80},
+  {name:"Marko Saric",           nation:"SRB",pos:"OH", years:[2022,2023,2024,2025,2026],                  stats:{kills:44,pts:12.0,digs:2.3,aces:0.3},   rating:79},
+
+  // ── RUSSIA (extra) ──
+  {name:"Pavel Pankov",          nation:"RUS",pos:"S",  years:[2019,2021],                       stats:{setEff:85,aces:0.3,digs:1.2,runEff:84}, rating:80},
+  {name:"Konstantin Bakun",      nation:"RUS",pos:"OH", years:[2018,2019],                       stats:{kills:44,pts:12.5,digs:2.1,aces:0.4},   rating:80},
+
+  // ── JAPAN (extra) ──
+  {name:"Reon Yamamoto",         nation:"JPN",pos:"OPP",years:[2022,2023,2024,2025,2026],                  stats:{kills:48,pts:14.8,blocks:0.6,aces:0.5}, rating:83},
+  {name:"Tatsunori Otsuka",      nation:"JPN",pos:"L",  years:[2022,2023,2024,2025,2026],                  stats:{digs:5.5,recEff:72,perfect:36},          rating:82},
+  {name:"Yuki Saito",            nation:"JPN",pos:"MB", years:[2021,2022],                       stats:{kills:54,blocks:1.0,pts:5.6,eff:48},    rating:79},
+
+  // ── ARGENTINA (extra) ──
+  {name:"Rodrigo Quiroga",       nation:"ARG",pos:"OPP",years:[2018,2019],                       stats:{kills:45,pts:12.8,blocks:0.5,aces:0.4}, rating:78},
+  {name:"Joaquin Gallego",       nation:"ARG",pos:"S",  years:[2022,2023,2024,2025,2026],                  stats:{setEff:84,aces:0.3,digs:1.1,runEff:83}, rating:78},
+
+  // ── SLOVENIA (extra) ──
+  {name:"Mitja Gasparini",       nation:"SLO",pos:"OH", years:[2018,2019],                       stats:{kills:42,pts:11.2,digs:2.2,aces:0.3},   rating:77},
+  {name:"Saso Stalekar",         nation:"SLO",pos:"L",  years:[2018,2019],                       stats:{digs:5.0,recEff:68,perfect:31},          rating:78},
+
+  // ── IRAN (extra) ──
+  {name:"Hosein Ghaffar Nia",    nation:"IRI",pos:"OH", years:[2022,2023,2024,2025,2026],                  stats:{kills:44,pts:12.2,digs:2.1,aces:0.3},   rating:78},
+  {name:"Morteza Sharifi",       nation:"IRI",pos:"MB", years:[2022,2023,2024,2025,2026],                  stats:{kills:55,blocks:1.0,pts:5.8,eff:48},    rating:78},
+
+  // ── NETHERLANDS (extra) ──
+  {name:"Ewout Snoep",           nation:"NED",pos:"OH", years:[2021,2022],                       stats:{kills:42,pts:11.0,digs:2.1,aces:0.3},   rating:78},
+  {name:"Wouter ter Maat",       nation:"NED",pos:"OH", years:[2018,2019],                       stats:{kills:41,pts:10.5,digs:2.0,aces:0.3},   rating:76},
+
+  // ── GERMANY (extra) ──
+  {name:"Simon Hirsch",          nation:"GER",pos:"MB", years:[2018,2019,2021],                  stats:{kills:54,blocks:0.9,pts:5.7,eff:48},    rating:79},
+  {name:"Julian Zenger",         nation:"GER",pos:"L",  years:[2018,2019,2021,2022],             stats:{digs:5.0,recEff:67,perfect:30},          rating:78},
+
+  // ── CANADA (extra) ──
+  {name:"Eric Loeppky",          nation:"CAN",pos:"OH", years:[2021,2022,2023,2024,2025,2026],             stats:{kills:46,pts:13.8,digs:2.5,aces:0.4},   rating:84},
+  {name:"Samuel Fortin",         nation:"CAN",pos:"MB", years:[2022,2023,2024,2025,2026],                  stats:{kills:55,blocks:1.1,pts:5.9,eff:49},    rating:79},
+  {name:"Rangi Doehler",         nation:"CAN",pos:"L",  years:[2022,2023,2024,2025,2026],                  stats:{digs:5.1,recEff:69,perfect:31},          rating:79},
+
+  // ── TURKEY (extra) ──
+  {name:"Efe Mandiraci",         nation:"TUR",pos:"OH", years:[2018,2019,2021],                  stats:{kills:42,pts:11.0,digs:2.2,aces:0.3},   rating:78},
+  {name:"Burak Gun",             nation:"TUR",pos:"S",  years:[2018,2019],                       stats:{setEff:83,aces:0.3,digs:1.1,runEff:82}, rating:77},
+  {name:"Berkay Ozcan",          nation:"TUR",pos:"L",  years:[2021,2022,2023,2024,2025,2026],             stats:{digs:5.0,recEff:68,perfect:30},          rating:78},
+  {name:"Adis Lagumdzija",       nation:"TUR",pos:"OPP",years:[2018,2019],                       stats:{kills:48,pts:14.0,blocks:0.6,aces:0.5}, rating:83},
+
+  // ── BULGARIA ──
+  // In VNL 2018–2019; Sokolov was one of the best OPP in the world
+  {name:"Tsvetan Sokolov",       nation:"BUL",pos:"OPP",years:[2018,2019], stats:{kills:55,pts:20.1,blocks:0.8,aces:0.9}, rating:94},
+  {name:"Radoslav Parapunov",    nation:"BUL",pos:"OH", years:[2018,2019], stats:{kills:47,pts:13.8,digs:2.5,aces:0.4},   rating:86},
+  {name:"Viktor Yosifov",        nation:"BUL",pos:"MB", years:[2018,2019], stats:{kills:59,blocks:1.2,pts:7.0,eff:52},    rating:84},
+  {name:"Georgi Bratoev",        nation:"BUL",pos:"OPP",years:[2018,2019], stats:{kills:49,pts:15.3,blocks:0.6,aces:0.5}, rating:81},
+  {name:"Nikolay Uchikov",       nation:"BUL",pos:"OH", years:[2018,2019], stats:{kills:44,pts:12.4,digs:2.3,aces:0.3},   rating:80},
+  {name:"Nikolai Penchev",       nation:"BUL",pos:"S",  years:[2018,2019], stats:{setEff:86,aces:0.3,digs:1.3,runEff:85}, rating:80},
+  {name:"Teodor Todorov",        nation:"BUL",pos:"OH", years:[2018,2019], stats:{kills:43,pts:11.5,digs:2.2,aces:0.3},   rating:78},
+  {name:"Tsvetomir Borisov",     nation:"BUL",pos:"MB", years:[2018,2019], stats:{kills:57,blocks:1.0,pts:6.2,eff:50},    rating:79},
+  {name:"Martin Atanasov",       nation:"BUL",pos:"L",  years:[2018,2019], stats:{digs:5.1,recEff:70,perfect:32},          rating:79},
+
+  // ── POLAND (extra 2) ──
+  {name:"Aleksander Sliwka",     nation:"POL",pos:"OH", years:[2021,2022,2023,2024,2025,2026], stats:{kills:49,pts:15.4,digs:2.8,aces:0.5}, rating:91},
+
+  // ── FRANCE (extra 2) ──
+  {name:"Kevin Le Roux",         nation:"FRA",pos:"MB", years:[2018,2019,2021,2022], stats:{kills:58,blocks:1.2,pts:6.8,eff:52},  rating:85},
+
+  // ── ITALY (extra 2) ──
+  {name:"Gabriele Nelli",        nation:"ITA",pos:"OH", years:[2022,2023,2024,2025,2026], stats:{kills:45,pts:13.0,digs:2.4,aces:0.3}, rating:82},
+  {name:"Oleg Antonov",          nation:"ITA",pos:"OH", years:[2018,2019],      stats:{kills:46,pts:13.6,digs:2.3,aces:0.4}, rating:84},
+
+  // ── BRAZIL (extra 2) ──
+  {name:"Eder Carbonera",        nation:"BRA",pos:"MB", years:[2018], stats:{kills:57,blocks:1.2,pts:6.4,eff:51}, rating:81},
+
+  // ── 2025 / 2026 NEW ARRIVALS ──
+  // Italy — next-gen breakouts
+  {name:"Lorenzo Cortesia",      nation:"ITA",pos:"MB", years:[2025,2026], stats:{kills:58,blocks:1.3,pts:6.9,eff:52},    rating:84},
+  {name:"Alessandro Bovolenta",  nation:"ITA",pos:"OH", years:[2025,2026], stats:{kills:46,pts:13.2,digs:2.5,aces:0.4},   rating:83},
+  // Poland
+  {name:"Bartlomiej Boladz",     nation:"POL",pos:"OH", years:[2025,2026], stats:{kills:45,pts:12.8,digs:2.4,aces:0.3},   rating:82},
+  // Canada
+  {name:"Daenan Gyimah",         nation:"CAN",pos:"MB", years:[2022,2023,2024,2025,2026], stats:{kills:57,blocks:1.3,pts:6.7,eff:52}, rating:83},
+
+  // ── BULGARIA (Nikolov era) ──
+  {name:"Simeon Nikolov",        nation:"BUL",pos:"S",  years:[2023,2024,2025,2026], stats:{setEff:92,aces:0.5,digs:1.7,runEff:91}, rating:92},
+  {name:"Alexander Nikolov",     nation:"BUL",pos:"OH", years:[2023,2024,2025,2026], stats:{kills:52,pts:18.1,digs:2.9,aces:0.7},   rating:93},
+  {name:"Svetoslav Gotsev",     nation:"BUL",pos:"MB", years:[2018,2019,2023,2024,2025,2026], stats:{kills:60,blocks:1.5,pts:7.5,eff:55},    rating:86},
+
+  // ── NEW VNL DREAM TEAM ADDITIONS ──
+  {name:"Tomohiro Yamamoto",    nation:"JPN",pos:"L",  years:[2022,2023,2024,2025,2026], stats:{digs:6.0,recEff:78,perfect:44},          rating:92},
+  {name:"Kewin Sasak",          nation:"POL",pos:"OPP",years:[2024,2025,2026],           stats:{kills:53,pts:19.5,blocks:0.8,aces:0.8}, rating:91},
+  {name:"Maique Nascimento",    nation:"BRA",pos:"L",  years:[2023,2024,2025,2026],      stats:{digs:6.2,recEff:77,perfect:41},          rating:90},
+
+  // ── COVERAGE GAP FILLS ──
+  // BRA
+  {name:"Matheus Bispo",        nation:"BRA",pos:"MB", years:[2023,2024,2025,2026],           stats:{kills:57,blocks:1.2,pts:6.5,eff:51},    rating:83},
+  // USA (year extensions handled above; no new players needed)
+  // SRB (Podrascanin extended above)
+  // GER
+  {name:"Ruben Schott",         nation:"GER",pos:"OH", years:[2023,2024,2025,2026],           stats:{kills:44,pts:12.5,digs:2.3,aces:0.3},   rating:82},
+  // CAN
+  {name:"Stephen Maar",         nation:"CAN",pos:"OH", years:[2018,2019,2021,2022,2023,2024], stats:{kills:47,pts:14.5,digs:2.5,aces:0.4},   rating:84},
+  {name:"Brodie Hofer",         nation:"CAN",pos:"OH", years:[2023,2024,2025,2026],           stats:{kills:44,pts:12.3,digs:2.3,aces:0.3},   rating:80},
+  {name:"Jay Blankenau",        nation:"CAN",pos:"S",  years:[2023,2024,2025,2026],           stats:{setEff:85,aces:0.3,digs:1.2,runEff:84}, rating:80},
+  // BUL (Nikolov era full coverage)
+  {name:"Matey Kaziyski",       nation:"BUL",pos:"OH", years:[2023,2024,2025,2026],           stats:{kills:49,pts:15.5,digs:2.4,aces:0.5},   rating:88},
+  {name:"Branimir Grozdanov",   nation:"BUL",pos:"OPP",years:[2023,2024,2025,2026],           stats:{kills:48,pts:14.0,blocks:0.6,aces:0.5}, rating:80},
+  {name:"Iliya Petkov",         nation:"BUL",pos:"MB", years:[2023,2024,2025,2026],           stats:{kills:56,blocks:1.1,pts:6.0,eff:50},    rating:80},
+  {name:"Vladislav Ivanov",     nation:"BUL",pos:"L",  years:[2023,2024,2025,2026],           stats:{digs:5.2,recEff:70,perfect:33},          rating:81},
+  // ARG
+  {name:"Facundo Imhoff",       nation:"ARG",pos:"MB", years:[2018,2019,2021],                stats:{kills:58,blocks:1.2,pts:6.5,eff:51},    rating:83},
+  {name:"Manuel Armoa",         nation:"ARG",pos:"OH", years:[2023,2024,2025,2026],           stats:{kills:43,pts:11.5,digs:2.3,aces:0.3},   rating:79},
+  {name:"Federico Trucco",      nation:"ARG",pos:"L",  years:[2023,2024,2025,2026],           stats:{digs:5.0,recEff:68,perfect:30},          rating:79},
+];
+
+/* ══════════════════════════════════════════════════════
+   CONSTANTS
+   ══════════════════════════════════════════════════════ */
+const NATIONS  = [...new Set(PLAYERS.map(p => p.nation))].sort();
+const YEARS    = [2018, 2019, 2021, 2022, 2023, 2024, 2025, 2026];
+// Pre-compute valid (nation, year) pairs — only combinations that have at least one player
+const VALID_PAIRS = [];
+NATIONS.forEach(n => YEARS.forEach(y => {
+  if (PLAYERS.some(p => p.nation === n && p.years.includes(y))) VALID_PAIRS.push({nation:n, year:y});
+}));
+// 7 slots: 1S, 2OH, 2MB, 1OPP, 1L
+const POSITIONS = ['S','OH','OH','MB','MB','OPP','L'];
+const POS_FULL  = {S:'Setter',OH:'Outside Hitter',MB:'Middle Blocker',OPP:'Opposite',L:'Libero'};
+
+/* ══════════════════════════════════════════════════════
+   STATE
+   ══════════════════════════════════════════════════════ */
+let G = {
+  mode:'classic', round:0,
+  nation:'BRA', year:2018,
+  roster:[], drafted:new Set(),
+  posFilter:'All', pending:null,
+  nationRerolled:false, yearRerolled:false,
+};
+
+let _autoAdvance = null; // timer for auto-advance from spin → draft
+
+/* ══════════════════════════════════════════════════════
+   HELPERS
+   ══════════════════════════════════════════════════════ */
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  window.scrollTo(0,0);
+}
+function toast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2200);
+}
+function fmtStat(v) {
+  if (v === undefined || v === null) return '—';
+  return typeof v === 'number' && v % 1 !== 0 ? v.toFixed(1) : String(v);
+}
+function remainingSlots() {
+  const rem = [...POSITIONS];
+  G.roster.forEach(r => { const i = rem.indexOf(r.position); if (i !== -1) rem.splice(i,1); });
+  return rem;
+}
+function canFill(pos) { return remainingSlots().includes(pos); }
+
+/* ══════════════════════════════════════════════════════
+   HOME / RESET
+   ══════════════════════════════════════════════════════ */
+function goHome() {
+  closeModal();
+  G = {mode:'classic',round:0,nation:'BRA',year:2018,roster:[],drafted:new Set(),posFilter:'All',pending:null,nationRerolled:false,yearRerolled:false};
+  showScreen('screen-home');
+}
+function startGame(mode) {
+  G.mode = mode; G.round = 0; G.roster = []; G.drafted = new Set();
+  G.nationRerolled = false; G.yearRerolled = false;
+  goToSpin();
+}
+
+/* ══════════════════════════════════════════════════════
+   SPIN SCREEN
+   ══════════════════════════════════════════════════════ */
+function goToSpin() {
+  updateLabels(); renderRosterBars();
+  G.nation = rnd(NATIONS); G.year = rnd(YEARS);
+  document.getElementById('nation-display').textContent = G.nation;
+  document.getElementById('year-display').textContent   = G.year;
+  const btn = document.getElementById('spin-btn');
+  btn.textContent = 'SPIN'; btn.onclick = doSpin; btn.disabled = false;
+  // Reflect reroll chip state — used chips stay used across all rounds
+  const cn = document.getElementById('reroll-chip-nation');
+  const cy = document.getElementById('reroll-chip-year');
+  if (cn) {
+    if (G.nationRerolled) { cn.textContent = '✓ Nation'; cn.className = 'reroll-chip used'; cn.disabled = true; }
+    else { cn.textContent = '↺ Nation'; cn.className = 'reroll-chip'; cn.disabled = false; }
+  }
+  if (cy) {
+    if (G.yearRerolled) { cy.textContent = '✓ Year'; cy.className = 'reroll-chip used'; cy.disabled = true; }
+    else { cy.textContent = '↺ Year'; cy.className = 'reroll-chip'; cy.disabled = false; }
+  }
+  document.getElementById('reroll-chips').style.visibility = 'hidden';
+  showScreen('screen-spin');
+}
+function rnd(arr) { return arr[Math.floor(Math.random() * arr.length)]; }
+
+function doSpin() {
+  const btn = document.getElementById('spin-btn');
+  btn.disabled = true; btn.textContent = 'SPINNING...';
+  document.getElementById('nation-card').classList.add('spinning');
+  document.getElementById('year-card').classList.add('spinning');
+  document.getElementById('reroll-chips').style.visibility = 'hidden';
+  const nEl = document.getElementById('nation-display');
+  const yEl = document.getElementById('year-display');
+  const t0 = Date.now();
+  const iv = setInterval(() => {
+    nEl.textContent = rnd(NATIONS);
+    yEl.textContent = rnd(YEARS);
+    if (Date.now() - t0 >= 1800) {
+      clearInterval(iv);
+      // Always land on a valid (nation, year) pair
+      const pair = rnd(VALID_PAIRS);
+      G.nation = pair.nation; G.year = pair.year;
+      nEl.textContent = G.nation; yEl.textContent = G.year;
+      document.getElementById('nation-card').classList.remove('spinning');
+      document.getElementById('year-card').classList.remove('spinning');
+      document.getElementById('reroll-chips').style.visibility = 'visible';
+      btn.textContent = 'Drafting...'; btn.disabled = true;
+      // Auto-advance to draft — cancel if user rerolls first
+      _autoAdvance = setTimeout(goToDraft, 700);
+    }
+  }, 80);
+}
+
+function spinCard(displayId, pool, cb) {
+  const el = document.getElementById(displayId);
+  const card = el.closest('.spin-card');
+  if (card) card.classList.add('spinning');
+  let n = 0;
+  const iv = setInterval(() => {
+    el.textContent = rnd(pool);
+    if (++n > 14) {
+      clearInterval(iv);
+      const v = rnd(pool); el.textContent = v;
+      if (card) card.classList.remove('spinning');
+      cb(v);
+    }
+  }, 80);
+}
+function rerollNation() {
+  if (G.nationRerolled) return;
+  G.nationRerolled = true;
+  // Cancel auto-advance so user has time to see the reroll result
+  if (_autoAdvance) { clearTimeout(_autoAdvance); _autoAdvance = null; }
+  const chip = document.getElementById('reroll-chip-nation');
+  if (chip) { chip.classList.add('used'); chip.disabled = true; }
+  // Only pick nations that have players in the current year
+  const validNations = [...new Set(VALID_PAIRS.filter(p => p.year === G.year).map(p => p.nation))].filter(n => n !== G.nation);
+  spinCard('nation-display', validNations.length ? validNations : NATIONS.filter(n => n !== G.nation), v => {
+    G.nation = v;
+    if (chip) chip.textContent = '✓ Nation';
+    _autoAdvance = setTimeout(goToDraft, 700);
+  });
+}
+function rerollYear() {
+  if (G.yearRerolled) return;
+  G.yearRerolled = true;
+  if (_autoAdvance) { clearTimeout(_autoAdvance); _autoAdvance = null; }
+  const chip = document.getElementById('reroll-chip-year');
+  if (chip) { chip.classList.add('used'); chip.disabled = true; }
+  // Only pick years that have players for the current nation
+  const validYears = VALID_PAIRS.filter(p => p.nation === G.nation).map(p => p.year).filter(y => y !== G.year);
+  spinCard('year-display', validYears.length ? validYears : YEARS.filter(y => y !== G.year), v => {
+    G.year = v;
+    if (chip) chip.textContent = '✓ Year';
+    _autoAdvance = setTimeout(goToDraft, 700);
+  });
+}
+
+function animatePill(el, pool, cb) {
+  el.classList.add('pill-spinning');
+  let n = 0;
+  const iv = setInterval(() => {
+    el.textContent = rnd(pool);
+    if (++n > 14) {
+      clearInterval(iv);
+      const v = rnd(pool);
+      el.textContent = v;
+      el.classList.remove('pill-spinning');
+      cb(v);
+    }
+  }, 80);
+}
+
+function showNewBadge(afterEl) {
+  const badge = document.createElement('span');
+  badge.className = 'new-badge'; badge.textContent = 'NEW';
+  afterEl.insertAdjacentElement('afterend', badge);
+  setTimeout(() => badge.remove(), 1900);
+}
+
+function rerollFromDraft(which) {
+  if (which === 'nation') {
+    if (G.nationRerolled) return;
+    G.nationRerolled = true;
+    document.getElementById('reroll-nation-btn').style.display = 'none';
+    const tag = document.getElementById('draft-nation-tag');
+    // Only cycle through nations that have players in the current year
+    const validNations = [...new Set(VALID_PAIRS.filter(p => p.year === G.year).map(p => p.nation))];
+    animatePill(tag, validNations.length ? validNations : NATIONS, v => {
+      G.nation = v; tag.textContent = v;
+      showNewBadge(tag);
+      renderPlayers();
+    });
+  } else {
+    if (G.yearRerolled) return;
+    G.yearRerolled = true;
+    document.getElementById('reroll-year-btn').style.display = 'none';
+    const tag = document.getElementById('draft-year-tag');
+    // Only cycle through years that have players for the current nation
+    const validYears = VALID_PAIRS.filter(p => p.nation === G.nation).map(p => p.year);
+    animatePill(tag, validYears.length ? validYears : YEARS, v => {
+      G.year = v; tag.textContent = v;
+      showNewBadge(tag);
+      renderPlayers();
+    });
+  }
+}
+
+/* ══════════════════════════════════════════════════════
+   DRAFT SCREEN
+   ══════════════════════════════════════════════════════ */
+function goToDraft() {
+  document.getElementById('spin-btn').onclick = doSpin;
+  document.getElementById('draft-nation-tag').textContent = G.nation;
+  document.getElementById('draft-year-tag').textContent   = G.year;
+  // Show/hide reroll buttons based on what was already rerolled on the spin screen
+  document.getElementById('reroll-nation-btn').style.display = G.nationRerolled ? 'none' : '';
+  document.getElementById('reroll-year-btn').style.display   = G.yearRerolled   ? 'none' : '';
+  G.posFilter = 'All';
+  document.querySelectorAll('.pos-filter').forEach((b,i) => b.classList.toggle('active', i===0));
+  document.getElementById('search-box').value = '';
+  setSortOpts('All');
+  updateLabels(); renderRosterBars(); renderPlayers();
+  showScreen('screen-draft');
+}
+
+function setSortOpts(pos) {
+  const sel = document.getElementById('sort-select');
+  const opts = POS_SORT_OPTS[pos] || POS_SORT_OPTS.All;
+  sel.innerHTML = opts.map(o => `<option value="${o.v}">${o.l}</option>`).join('');
+}
+
+function filterPos(pos, el) {
+  G.posFilter = pos;
+  document.querySelectorAll('.pos-filter').forEach(b => b.classList.remove('active'));
+  el.classList.add('active');
+  setSortOpts(pos);
+  renderPlayers();
+}
+
+function renderPlayers() {
+  const search = document.getElementById('search-box').value.toLowerCase();
+  const sortKey = document.getElementById('sort-select').value;
+  const rem = remainingSlots();
+
+  const list = PLAYERS
+    .filter(p => p.nation === G.nation && p.years.includes(G.year))
+    .filter(p => G.posFilter === 'All' || p.pos === G.posFilter)
+    .filter(p => !search || p.name.toLowerCase().includes(search))
+    .sort((a,b) => {
+      const va = sortKey === 'rating' ? a.rating : (a.stats[sortKey] ?? a.rating);
+      const vb = sortKey === 'rating' ? b.rating : (b.stats[sortKey] ?? b.rating);
+      return vb - va;
+    });
+
+  document.getElementById('player-count').textContent =
+    `${list.length} player${list.length!==1?'s':''} available`;
+
+  const hide = G.mode === 'spikeiq';
+
+  document.getElementById('player-list').innerHTML = list.length ? list.map(p => {
+    const drafted  = G.drafted.has(p.name);
+    const posFull  = !rem.includes(p.pos);
+    const defs     = POS_STAT_DEFS[p.pos] || [];
+    const cls      = drafted ? 'drafted' : posFull ? 'pos-full' : '';
+    const key      = encodePlayerName(p.name);
+    const statsHtml = hide
+      ? `<div class="stat-block"><div class="stat-val" style="color:var(--text2)">?</div></div>`
+      : defs.map(d => `<div class="stat-block"><div class="stat-val">${fmtStat(p.stats[d.k])}</div><div class="stat-lbl">${d.l}</div></div>`).join('');
+    return `
+      <div class="player-card ${cls}" onclick="onPickPlayer('${key}')">
+        <div class="player-info">
+          <div class="player-name">${p.name}</div>
+          <div class="player-meta"><span class="pos-badge ${p.pos}">${p.pos}</span>${p.nation} · ${G.year}</div>
+        </div>
+        <div class="player-stats">${statsHtml}</div>
+      </div>`;
+  }).join('')
+  : `<div class="empty-msg">No players found for ${G.nation} in ${G.year}.<br>Try rerolling the nation or year above.</div>`;
+}
+
+function encodePlayerName(name) { return name.replace(/['"]/g,'__'); }
+function decodePlayerName(key)  { return key.replace(/__/g,"'"); }
+
+/* ══════════════════════════════════════════════════════
+   POSITION MODAL — strict position matching
+   ══════════════════════════════════════════════════════ */
+function onPickPlayer(key) {
+  const name = decodePlayerName(key);
+  const p = PLAYERS.find(x => x.name === name);
+  if (!p || G.drafted.has(p.name)) return;
+  if (!canFill(p.pos)) {
+    const slots = POSITIONS.filter(s => s === p.pos).length;
+    const label = POS_FULL[p.pos];
+    toast(`${slots > 1 ? 'Both' : 'The'} ${label} slot${slots > 1 ? 's are' : ' is'} already filled!`);
+    return;
+  }
+  G.pending = p;
+
+  document.getElementById('modal-title').textContent = p.name;
+  document.getElementById('modal-sub').textContent =
+    `${p.nation} · ${POS_FULL[p.pos]} · ${G.year}`;
+
+  const defs = POS_STAT_DEFS[p.pos] || [];
+  const hide = G.mode === 'spikeiq';
+  document.getElementById('modal-stats').innerHTML = defs.map(d =>
+    `<div class="modal-stat">
+       <div class="modal-stat-val">${hide ? '?' : fmtStat(p.stats[d.k])}</div>
+       <div class="modal-stat-lbl">${d.l}</div>
+     </div>`
+  ).join('');
+
+  const btn = document.getElementById('modal-confirm-btn');
+  btn.textContent = `Draft as ${p.pos} · ${POS_FULL[p.pos]}`;
+  btn.className   = `draft-confirm-btn ${p.pos}`;
+
+  document.getElementById('pos-modal').classList.add('open');
+}
+
+function closeModal() {
+  document.getElementById('pos-modal').classList.remove('open');
+  G.pending = null;
+}
+
+function confirmDraft() {
+  const p = G.pending;
+  if (!p) return;
+  closeModal();
+  G.roster.push({player:p, position:p.pos});
+  G.drafted.add(p.name);
+  G.round++;
+  updateLabels(); renderRosterBars();
+  if (G.round >= POSITIONS.length) showResult();
+  else goToSpin();
+}
+
+/* ══════════════════════════════════════════════════════
+   ROSTER BAR
+   ══════════════════════════════════════════════════════ */
+function renderRosterBars() {
+  ['spin-roster-slots','draft-roster-slots'].forEach(id => {
+    const el = document.getElementById(id);
+    if (!el) return;
+    const usedIdx = new Set();
+    el.innerHTML = POSITIONS.map(pos => {
+      // Find the first drafted player matching this position slot that hasn't been placed yet
+      const pickIdx = G.roster.findIndex((r, i) => r.position === pos && !usedIdx.has(i));
+      if (pickIdx !== -1) {
+        usedIdx.add(pickIdx);
+        const pick = G.roster[pickIdx];
+        const init = pick.player.name.split(' ').map(w=>w[0]).join('').slice(0,3);
+        return `<div class="roster-slot"><div class="slot-circle filled pos-${pick.position}"><span class="slot-initials">${init}</span></div><span class="slot-label">${pick.position}</span></div>`;
+      }
+      return `<div class="roster-slot"><div class="slot-circle">${pos}</div><span class="slot-label">${pos}</span></div>`;
+    }).join('');
+  });
+}
+
+function updateLabels() {
+  const total = POSITIONS.length;
+  const lbl = `Round ${Math.min(G.round+1,total)}/${total}`;
+  ['spin-round-label','draft-round-label'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.textContent = lbl;
+  });
+}
+
+/* ══════════════════════════════════════════════════════
+   RESULT
+   ══════════════════════════════════════════════════════ */
+function showResult() {
+  const avg   = G.roster.reduce((s,r) => s + r.player.rating, 0) / G.roster.length;
+  const score = Math.round(Math.min(99, avg));
+  document.getElementById('result-rating').textContent = score;
+
+  let verdict, cls, trophy;
+  if      (score >= 95) { verdict='ELITE · Undefeated Contender'; cls='elite';   trophy='🏆'; }
+  else if (score >= 90) { verdict='GREAT · Title Contender';      cls='great';   trophy='🥇'; }
+  else if (score >= 85) { verdict='GOOD · Playoff-Caliber';       cls='good';    trophy='🥈'; }
+  else if (score >= 80) { verdict='AVERAGE · Mid-Table';          cls='average'; trophy='🥉'; }
+  else                  { verdict='WEAK · Needs Work';            cls='weak';    trophy='😬'; }
+
+  document.getElementById('result-trophy').textContent = trophy;
+  const vEl = document.getElementById('result-verdict');
+  vEl.textContent = verdict; vEl.className = `verdict ${cls}`;
+
+  document.getElementById('result-roster').innerHTML = G.roster.map(r => {
+    const defs = POS_STAT_DEFS[r.position] || [];
+    const prim = defs[0] ? `${fmtStat(r.player.stats[defs[0].k])} ${defs[0].l}` : '';
+    return `
+      <div class="result-player">
+        <div class="result-pos-badge ${r.position}">${r.position}</div>
+        <div class="result-player-info">
+          <div class="result-player-name">${r.player.name}</div>
+          <div class="result-player-meta">${r.player.nation} · ${POS_FULL[r.position]} · ${prim}</div>
+        </div>
+        <div class="result-player-rating">${r.player.rating}</div>
+      </div>`;
+  }).join('');
+
+  showScreen('screen-result');
+}
+
+function shareResult() {
+  const score = document.getElementById('result-rating').textContent;
+  const lines = [`🏐 VNL All-Stars — ${score} OVR`];
+  G.roster.forEach(r => lines.push(`  ${r.position}: ${r.player.name} (${r.player.rating})`));
+  lines.push('\nCan you top this? #VNLDraft');
+  const text = lines.join('\n');
+  if (navigator.share) navigator.share({text});
+  else navigator.clipboard.writeText(text).then(() => toast('Copied!'));
+}
+
+// init
+renderRosterBars();
+</script>
+</body>
+</html>
