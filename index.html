@@ -1016,8 +1016,8 @@ function rerollFromDraft(which) {
     document.getElementById('reroll-nation-btn').style.display = 'none';
     const tag = document.getElementById('draft-nation-tag');
     // Only cycle through nations that have players in the current year
-    const validNations = [...new Set(VALID_PAIRS.filter(p => p.year === G.year).map(p => p.nation))];
-    animatePill(tag, validNations.length ? validNations : NATIONS, v => {
+    const validNations = [...new Set(VALID_PAIRS.filter(p => p.year === G.year).map(p => p.nation))].filter(n => n !== G.nation);
+    animatePill(tag, validNations.length ? validNations : NATIONS.filter(n => n !== G.nation), v => {
       G.nation = v; tag.textContent = v;
       showNewBadge(tag);
       renderPlayers();
@@ -1028,8 +1028,8 @@ function rerollFromDraft(which) {
     document.getElementById('reroll-year-btn').style.display = 'none';
     const tag = document.getElementById('draft-year-tag');
     // Only cycle through years that have players for the current nation
-    const validYears = VALID_PAIRS.filter(p => p.nation === G.nation).map(p => p.year);
-    animatePill(tag, validYears.length ? validYears : YEARS, v => {
+    const validYears = VALID_PAIRS.filter(p => p.nation === G.nation).map(p => p.year).filter(y => y !== G.year);
+    animatePill(tag, validYears.length ? validYears : YEARS.filter(y => y !== G.year), v => {
       G.year = v; tag.textContent = v;
       showNewBadge(tag);
       renderPlayers();
