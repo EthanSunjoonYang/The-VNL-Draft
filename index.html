@@ -1205,10 +1205,11 @@ function showResult() {
   document.getElementById('result-rating').textContent = score;
 
   let verdict, cls, trophy;
-  if      (score >= 95) { verdict='ELITE · Undefeated Contender'; cls='elite';   trophy='🏆'; }
-  else if (score >= 90) { verdict='GREAT · Title Contender';      cls='great';   trophy='🥇'; }
-  else if (score >= 85) { verdict='GOOD · Playoff-Caliber';       cls='good';    trophy='🥈'; }
-  else if (score >= 80) { verdict='AVERAGE · Mid-Table';          cls='average'; trophy='🥉'; }
+  if      (score >= 96) { verdict='LEGENDARY · All-Time Roster';  cls='elite';   trophy='🏆'; }
+  else if (score >= 92) { verdict='ELITE · Undefeated Contender'; cls='elite';   trophy='🥇'; }
+  else if (score >= 89) { verdict='GREAT · Title Contender';      cls='great';   trophy='🥈'; }
+  else if (score >= 84) { verdict='GOOD · Playoff-Caliber';       cls='good';    trophy='🎖️'; }
+  else if (score >= 79) { verdict='AVERAGE · Mid-Table';          cls='average'; trophy='🥉'; }
   else                  { verdict='WEAK · Needs Work';            cls='weak';    trophy='😬'; }
 
   document.getElementById('result-trophy').textContent = trophy;
