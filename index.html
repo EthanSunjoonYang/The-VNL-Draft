@@ -475,7 +475,7 @@ const PLAYERS = [
   {name:"Bruno Rezende",         nation:"BRA",pos:"S",  years:[2018,2019,2021,2022,2023,2024,2025,2026], stats:{setEff:92,aces:0.3,digs:1.6,runEff:91}, rating:97},
   {name:"Fernando Kreling",      nation:"BRA",pos:"S",  years:[2022,2023,2024,2025,2026],                 stats:{setEff:87,aces:0.4,digs:1.2,runEff:86}, rating:86},
   {name:"Leal",                  nation:"BRA",pos:"OH", years:[2021,2022,2023,2024,2025,2026],             stats:{kills:52,pts:18.4,digs:2.5,aces:0.7},   rating:95},
-  {name:"Ricardo Lucarelli",     nation:"BRA",pos:"OH", years:[2018,2019,2021,2022],             stats:{kills:48,pts:15.2,digs:2.8,aces:0.4},   rating:91},
+  {name:"Ricardo Lucarelli",     nation:"BRA",pos:"OH", years:[2018,2019,2021,2022,2023,2024,2025,2026], stats:{kills:48,pts:15.2,digs:2.8,aces:0.4},   rating:91},
   {name:"Douglas Souza",         nation:"BRA",pos:"OH", years:[2018,2019,2021,2022,2023,2024,2025,2026], stats:{kills:45,pts:13.7,digs:3.1,aces:0.5},   rating:88},
   {name:"Walace",                nation:"BRA",pos:"OPP",years:[2018,2019,2021],                  stats:{kills:51,pts:17.5,blocks:0.8,aces:0.6}, rating:87},
   {name:"Alan Souza",            nation:"BRA",pos:"OPP",years:[2018,2019],                       stats:{kills:50,pts:16.2,blocks:0.7,aces:0.5}, rating:84},
@@ -506,6 +506,7 @@ const PLAYERS = [
 
   // ── ITALY ──
   {name:"Simone Giannelli",      nation:"ITA",pos:"S",  years:[2018,2019,2021,2022,2023,2024,2025,2026],   stats:{setEff:93,aces:0.4,digs:1.7,runEff:92}, rating:98},
+  {name:"Paolo Porro",           nation:"ITA",pos:"S",  years:[2024,2025,2026],                      stats:{setEff:88,aces:0.3,digs:1.4,runEff:87}, rating:83},
   {name:"Daniele Lavia",         nation:"ITA",pos:"OH", years:[2021,2022,2023,2024,2025,2026],             stats:{kills:50,pts:16.8,digs:2.6,aces:0.5},   rating:92},
   {name:"Alessandro Michieletto",nation:"ITA",pos:"OH", years:[2021,2022,2023,2024,2025,2026],             stats:{kills:47,pts:15.4,digs:2.9,aces:0.6},   rating:91},
   {name:"Osmany Juantorena",     nation:"ITA",pos:"OH", years:[2018,2019,2021],                  stats:{kills:48,pts:14.5,digs:2.4,aces:0.5},   rating:90},
@@ -537,12 +538,12 @@ const PLAYERS = [
 
   // ── FRANCE ──
   {name:"Antoine Brizard",       nation:"FRA",pos:"S",  years:[2018,2019,2021,2022,2023,2024,2025,2026],   stats:{setEff:90,aces:0.5,digs:1.6,runEff:89}, rating:90},
-  {name:"Benjamin Toniutti",     nation:"FRA",pos:"S",  years:[2018,2019,2021],                  stats:{setEff:87,aces:0.3,digs:1.3,runEff:86}, rating:86},
+  {name:"Benjamin Toniutti",     nation:"FRA",pos:"S",  years:[2018,2019,2021,2022,2023,2024,2025,2026], stats:{setEff:87,aces:0.3,digs:1.3,runEff:86}, rating:86},
   {name:"Earvin Ngapeth",        nation:"FRA",pos:"OH", years:[2018,2019,2021,2022,2023,2024,2026], stats:{kills:51,pts:17.2,digs:3.0,aces:0.7},   rating:95},
   {name:"Kevin Tillie",          nation:"FRA",pos:"OH", years:[2018,2019,2021],                  stats:{kills:45,pts:13.8,digs:2.8,aces:0.4},   rating:87},
   {name:"Trévor Clevenot",       nation:"FRA",pos:"OH", years:[2021,2022,2023,2024,2025,2026],             stats:{kills:46,pts:13.4,digs:2.5,aces:0.4},   rating:86},
   {name:"Stephen Boyer",         nation:"FRA",pos:"OH", years:[2019,2021,2022],                  stats:{kills:44,pts:12.8,digs:2.4,aces:0.3},   rating:83},
-  {name:"Nicolas Le Goff",       nation:"FRA",pos:"MB", years:[2018,2019,2021,2022],             stats:{kills:58,blocks:1.1,pts:6.5,eff:52},    rating:85},
+  {name:"Nicolas Le Goff",       nation:"FRA",pos:"MB", years:[2018,2019,2021,2022,2023,2024,2025,2026], stats:{kills:58,blocks:1.1,pts:6.5,eff:52},    rating:85},
   {name:"Barthélémy Chinenyeze", nation:"FRA",pos:"MB", years:[2019,2021,2022,2023,2024,2025,2026],        stats:{kills:60,blocks:1.3,pts:7.2,eff:55},    rating:89},
   {name:"Jean Patry",            nation:"FRA",pos:"OPP",years:[2018,2019,2021,2022,2023,2024,2025,2026],   stats:{kills:50,pts:16.5,blocks:0.8,aces:0.6}, rating:91},
   {name:"Thibault Rossard",      nation:"FRA",pos:"OH", years:[2018,2019],                       stats:{kills:44,pts:12.1,digs:2.5,aces:0.3},   rating:79},
@@ -585,9 +586,11 @@ const PLAYERS = [
   {name:"Yuki Ishikawa",         nation:"JPN",pos:"OH", years:[2018,2019,2021,2022,2023,2024,2025,2026],   stats:{kills:48,pts:15.1,digs:2.3,aces:0.6},   rating:90},
   {name:"Masahiro Yanagida",     nation:"JPN",pos:"OH", years:[2018,2019,2021],                  stats:{kills:44,pts:12.0,digs:2.5,aces:0.4},   rating:82},
   {name:"Issei Otake",           nation:"JPN",pos:"OH", years:[2022,2023,2024,2025,2026],                  stats:{kills:46,pts:13.4,digs:2.4,aces:0.4},   rating:84},
-  {name:"Tatsuya Fukuzawa",      nation:"JPN",pos:"MB", years:[2021,2022,2023,2024,2025,2026],             stats:{kills:57,blocks:1.2,pts:6.7,eff:52},    rating:85},
-  {name:"Masahiro Sekita",       nation:"JPN",pos:"MB", years:[2018,2019,2021],                  stats:{kills:54,blocks:1.0,pts:5.8,eff:48},    rating:82},
+  {name:"Tatsuya Fukuzawa",      nation:"JPN",pos:"MB", years:[2019,2021,2022,2023,2024,2025,2026],       stats:{kills:57,blocks:1.2,pts:6.7,eff:52},    rating:85},
+  {name:"Masahiro Sekita",       nation:"JPN",pos:"S",  years:[2018,2019,2021,2022,2023,2024,2025,2026], stats:{setEff:88,aces:0.4,digs:1.4,runEff:87}, rating:85},
+  {name:"Motoki Eiro",           nation:"JPN",pos:"S",  years:[2023,2024,2025,2026],                 stats:{setEff:86,aces:0.3,digs:1.2,runEff:85}, rating:80},
   {name:"Yuta Yoneyama",         nation:"JPN",pos:"MB", years:[2018,2019,2021],                  stats:{kills:55,blocks:1.1,pts:6.0,eff:49},    rating:81},
+  {name:"Kan Mori",              nation:"JPN",pos:"MB", years:[2018,2019],                       stats:{kills:54,blocks:1.0,pts:5.5,eff:48},    rating:79},
   {name:"Akihiro Yamauchi",      nation:"JPN",pos:"MB", years:[2022,2023,2024,2025,2026],                  stats:{kills:56,blocks:1.3,pts:6.4,eff:51},    rating:83},
   {name:"Kenta Takanashi",       nation:"JPN",pos:"OH", years:[2018,2019,2021],                  stats:{kills:44,pts:12.5,digs:2.6,aces:0.3},   rating:81},
   {name:"Kunihiro Shimizu",      nation:"JPN",pos:"L",  years:[2018,2019,2021,2022],             stats:{digs:5.4,recEff:71,perfect:35},          rating:84},
@@ -602,7 +605,7 @@ const PLAYERS = [
   {name:"Santiago Danani",       nation:"ARG",pos:"OH", years:[2018,2019,2021,2022],             stats:{kills:42,pts:11.0,digs:2.2,aces:0.3},   rating:78},
   {name:"Agustin Loser",         nation:"ARG",pos:"MB", years:[2019,2021,2022,2023,2024,2025,2026],        stats:{kills:61,blocks:1.3,pts:7.8,eff:56},    rating:88},
   {name:"Ezequiel Palacios",     nation:"ARG",pos:"MB", years:[2018,2019,2021,2022],             stats:{kills:57,blocks:1.1,pts:6.5,eff:51},    rating:83},
-  {name:"Tobias Krick",          nation:"ARG",pos:"MB", years:[2021,2022,2023,2024,2025,2026],             stats:{kills:55,blocks:1.0,pts:6.0,eff:49},    rating:80},
+  {name:"Tobias Krick",          nation:"GER",pos:"MB", years:[2021,2022,2023,2024,2025,2026],             stats:{kills:55,blocks:1.0,pts:6.0,eff:49},    rating:80},
   {name:"Sebastian Sole",        nation:"ARG",pos:"OPP",years:[2018,2019,2021],                  stats:{kills:48,pts:14.8,blocks:0.7,aces:0.5}, rating:84},
   {name:"Jan Martinez",          nation:"ARG",pos:"OPP",years:[2021,2022,2023,2024,2025,2026],             stats:{kills:46,pts:13.5,blocks:0.6,aces:0.4}, rating:80},
   {name:"Nicolas Uriarte",       nation:"ARG",pos:"L",  years:[2018,2019,2021,2022],             stats:{digs:5.1,recEff:70,perfect:33},          rating:82},
@@ -650,8 +653,8 @@ const PLAYERS = [
   {name:"Christian Fromm",       nation:"GER",pos:"OH", years:[2018,2019,2021,2022],             stats:{kills:46,pts:13.8,digs:2.5,aces:0.4},   rating:86},
   {name:"Linus Weber",           nation:"GER",pos:"OH", years:[2021,2022,2023,2024,2025,2026],             stats:{kills:44,pts:12.5,digs:2.3,aces:0.3},   rating:82},
   {name:"Anton Brehme",          nation:"GER",pos:"OH", years:[2018,2019,2021],                  stats:{kills:43,pts:11.8,digs:2.2,aces:0.3},   rating:79},
-  {name:"Moritz Reichert",       nation:"GER",pos:"MB", years:[2018,2019,2021],                  stats:{kills:56,blocks:1.1,pts:6.2,eff:50},    rating:81},
-  {name:"Tobias Brand",          nation:"GER",pos:"MB", years:[2018,2019,2021,2022,2023,2024,2025,2026], stats:{kills:55,blocks:1.0,pts:5.8,eff:49},    rating:80},
+  {name:"Moritz Reichert",       nation:"GER",pos:"OH", years:[2018,2019,2021,2022,2023,2024,2025,2026], stats:{kills:44,pts:12.5,digs:2.3,aces:0.4},   rating:81},
+  {name:"Tobias Brand",          nation:"GER",pos:"OH", years:[2018,2019,2021,2022,2023,2024,2025,2026], stats:{kills:44,pts:12.4,digs:2.3,aces:0.3},   rating:80},
   {name:"Florian Krage",         nation:"GER",pos:"MB", years:[2021,2022,2023,2024,2025,2026],             stats:{kills:57,blocks:1.2,pts:6.5,eff:51},    rating:82},
   {name:"Georg Grozer",          nation:"GER",pos:"OPP",years:[2018,2019],                       stats:{kills:55,pts:20.1,blocks:0.8,aces:0.7}, rating:92},
   {name:"Gyorgy Grozer",         nation:"GER",pos:"OPP",years:[2021,2022,2023,2024,2025,2026],             stats:{kills:51,pts:17.2,blocks:0.7,aces:0.6}, rating:88},
@@ -679,7 +682,7 @@ const PLAYERS = [
   {name:"Onur Saniyev",          nation:"TUR",pos:"L",  years:[2024,2025,2026],                            stats:{digs:5.3,recEff:71,perfect:34},          rating:82},
 
   // ── BRAZIL (extra) ──
-  {name:"Darlan",                nation:"BRA",pos:"OPP",years:[2018,2019],                       stats:{kills:48,pts:15.2,blocks:0.7,aces:0.5}, rating:86},
+  {name:"Darlan",                nation:"BRA",pos:"OPP",years:[2018,2019,2021,2022,2023,2024,2025,2026], stats:{kills:48,pts:15.2,blocks:0.7,aces:0.5}, rating:86},
   {name:"Robson Santana",        nation:"BRA",pos:"OH", years:[2021,2022],                       stats:{kills:43,pts:11.9,digs:2.4,aces:0.3},   rating:79},
   {name:"Adriano",               nation:"BRA",pos:"OPP",years:[2022,2023,2024,2025,2026],                  stats:{kills:49,pts:15.8,blocks:0.7,aces:0.5}, rating:83},
   {name:"Fernando Cachopa",      nation:"BRA",pos:"MB", years:[2018,2019],                       stats:{kills:56,blocks:1.1,pts:5.9,eff:50},    rating:79},
@@ -701,7 +704,7 @@ const PLAYERS = [
   {name:"Tomasz Fornal",         nation:"POL",pos:"OH", years:[2021,2022,2023,2024,2025,2026],             stats:{kills:48,pts:14.8,digs:2.8,aces:0.5},   rating:88},
   {name:"Artur Szalpuk",         nation:"POL",pos:"OH", years:[2018,2019,2021],                  stats:{kills:44,pts:12.3,digs:2.4,aces:0.3},   rating:82},
   {name:"Rafal Bienias",         nation:"POL",pos:"OH", years:[2018,2019],                       stats:{kills:43,pts:11.5,digs:2.3,aces:0.3},   rating:79},
-  {name:"Jan Firlej",            nation:"POL",pos:"MB", years:[2022,2023,2024,2025,2026],                  stats:{kills:56,blocks:1.1,pts:6.1,eff:50},    rating:81},
+  {name:"Jan Firlej",            nation:"POL",pos:"S",  years:[2022,2023,2024,2025,2026],                  stats:{setEff:87,aces:0.4,digs:1.3,runEff:86}, rating:81},
 
   // ── FRANCE (extra) ──
   {name:"Julien Lyneel",         nation:"FRA",pos:"OH", years:[2021,2022,2023,2024,2025,2026],             stats:{kills:45,pts:13.0,digs:2.4,aces:0.4},   rating:84},
@@ -718,7 +721,6 @@ const PLAYERS = [
   {name:"Konstantin Bakun",      nation:"RUS",pos:"OH", years:[2018,2019],                       stats:{kills:44,pts:12.5,digs:2.1,aces:0.4},   rating:80},
 
   // ── JAPAN (extra) ──
-  {name:"Masaki Oya",            nation:"JPN",pos:"S",  years:[2022,2023,2024,2025,2026],                  stats:{setEff:87,aces:0.4,digs:1.3,runEff:86}, rating:84},
   {name:"Tatsunori Otsuka",      nation:"JPN",pos:"L",  years:[2022,2023,2024,2025,2026],                  stats:{digs:5.5,recEff:72,perfect:36},          rating:82},
   {name:"Yuki Saito",            nation:"JPN",pos:"MB", years:[2021,2022],                       stats:{kills:54,blocks:1.0,pts:5.6,eff:48},    rating:79},
 
@@ -728,7 +730,7 @@ const PLAYERS = [
 
   // ── SLOVENIA (extra) ──
   {name:"Mitja Gasparini",       nation:"SLO",pos:"OH", years:[2018,2019],                       stats:{kills:42,pts:11.2,digs:2.2,aces:0.3},   rating:77},
-  {name:"Saso Stalekar",         nation:"SLO",pos:"L",  years:[2018,2019],                       stats:{digs:5.0,recEff:68,perfect:31},          rating:78},
+  {name:"Saso Stalekar",         nation:"SLO",pos:"MB", years:[2018,2019,2021,2022,2023,2024,2025,2026], stats:{kills:55,blocks:1.0,pts:5.8,eff:49},    rating:78},
 
   // ── IRAN (extra) ──
   {name:"Hosein Ghaffar Nia",    nation:"IRI",pos:"OH", years:[2022,2023,2024,2025,2026],                  stats:{kills:44,pts:12.2,digs:2.1,aces:0.3},   rating:78},
@@ -739,7 +741,9 @@ const PLAYERS = [
   {name:"Wouter ter Maat",       nation:"NED",pos:"OH", years:[2018,2019],                       stats:{kills:41,pts:10.5,digs:2.0,aces:0.3},   rating:76},
 
   // ── GERMANY (extra) ──
+  {name:"Jochen Schöps",         nation:"GER",pos:"MB", years:[2018,2019],                       stats:{kills:56,blocks:1.1,pts:6.2,eff:50},    rating:83},
   {name:"Simon Hirsch",          nation:"GER",pos:"MB", years:[2018,2019,2021],                  stats:{kills:54,blocks:0.9,pts:5.7,eff:48},    rating:79},
+  {name:"Tobias Torwie",         nation:"GER",pos:"MB", years:[2023,2024,2025,2026],             stats:{kills:56,blocks:1.2,pts:6.3,eff:51},    rating:80},
   {name:"Julian Zenger",         nation:"GER",pos:"L",  years:[2018,2019,2021,2022],             stats:{digs:5.0,recEff:67,perfect:30},          rating:78},
 
   // ── CANADA (extra) ──
@@ -779,9 +783,9 @@ const PLAYERS = [
   // ── 2025 / 2026 NEW ARRIVALS ──
   // Italy — next-gen breakouts
   {name:"Lorenzo Cortesia",      nation:"ITA",pos:"MB", years:[2025,2026], stats:{kills:58,blocks:1.3,pts:6.9,eff:52},    rating:84},
-  {name:"Alessandro Bovolenta",  nation:"ITA",pos:"OH", years:[2025,2026], stats:{kills:46,pts:13.2,digs:2.5,aces:0.4},   rating:83},
+  {name:"Alessandro Bovolenta",  nation:"ITA",pos:"OPP",years:[2025,2026], stats:{kills:50,pts:16.5,blocks:0.7,aces:0.5}, rating:83},
   // Poland
-  {name:"Bartlomiej Boladz",     nation:"POL",pos:"OH", years:[2025,2026], stats:{kills:45,pts:12.8,digs:2.4,aces:0.3},   rating:82},
+  {name:"Bartlomiej Boladz",     nation:"POL",pos:"OPP",years:[2025,2026], stats:{kills:50,pts:16.8,blocks:0.7,aces:0.5}, rating:82},
   // Canada
   {name:"Daenan Gyimah",         nation:"CAN",pos:"MB", years:[2022,2023,2024,2025,2026], stats:{kills:57,blocks:1.3,pts:6.7,eff:52}, rating:83},
 
@@ -808,11 +812,12 @@ const PLAYERS = [
   {name:"Jay Blankenau",        nation:"CAN",pos:"S",  years:[2023,2024,2025,2026],           stats:{setEff:85,aces:0.3,digs:1.2,runEff:84}, rating:80},
   // BUL (Nikolov era full coverage)
   {name:"Matey Kaziyski",       nation:"BUL",pos:"OH", years:[2023,2024,2025,2026],           stats:{kills:49,pts:15.5,digs:2.4,aces:0.5},   rating:88},
-  {name:"Branimir Grozdanov",   nation:"BUL",pos:"OPP",years:[2023,2024,2025,2026],           stats:{kills:48,pts:14.0,blocks:0.6,aces:0.5}, rating:80},
+  {name:"Branimir Grozdanov",   nation:"BUL",pos:"OH", years:[2023,2024,2025,2026],           stats:{kills:46,pts:13.2,digs:2.4,aces:0.5},   rating:80},
   {name:"Iliya Petkov",         nation:"BUL",pos:"MB", years:[2023,2024,2025,2026],           stats:{kills:56,blocks:1.1,pts:6.0,eff:50},    rating:80},
   {name:"Vladislav Ivanov",     nation:"BUL",pos:"L",  years:[2023,2024,2025,2026],           stats:{digs:5.2,recEff:70,perfect:33},          rating:81},
+  {name:"Antov",                nation:"BUL",pos:"OPP",years:[2023,2024,2025,2026],           stats:{kills:48,pts:14.5,blocks:0.6,aces:0.5}, rating:80},
   // ARG
-  {name:"Facundo Imhoff",       nation:"ARG",pos:"MB", years:[2018,2019,2021],                stats:{kills:58,blocks:1.2,pts:6.5,eff:51},    rating:83},
+  {name:"Facundo Imhoff",       nation:"ARG",pos:"MB", years:[2018,2019,2021,2022,2023,2024,2025,2026], stats:{kills:58,blocks:1.2,pts:6.5,eff:51},    rating:83},
   {name:"Manuel Armoa",         nation:"ARG",pos:"OH", years:[2023,2024,2025,2026],           stats:{kills:43,pts:11.5,digs:2.3,aces:0.3},   rating:79},
   {name:"Federico Trucco",      nation:"ARG",pos:"L",  years:[2023,2024,2025,2026],           stats:{digs:5.0,recEff:68,perfect:30},          rating:79},
 ];
