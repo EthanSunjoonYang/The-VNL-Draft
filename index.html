@@ -1236,9 +1236,9 @@ function shareResult() {
   const score = document.getElementById('result-rating').textContent;
   const lines = [`🏐 VNL All-Stars — ${score} OVR`];
   G.roster.forEach(r => lines.push(`  ${r.position}: ${r.player.name} (${r.player.rating})`));
-  lines.push('\nCan you top this? #VNLDraft');
+  lines.push('\nCan you top this? Play here → https://ethansunjoonyang.github.io/The-VNL-Draft/\n#VNLDraft');
   const text = lines.join('\n');
-  if (navigator.share) navigator.share({text});
+  if (navigator.share) navigator.share({title:'VNL Draft', text});
   else navigator.clipboard.writeText(text).then(() => toast('Copied!'));
 }
 
